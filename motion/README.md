@@ -7,4 +7,6 @@
 - `python3 render.py` يصدّر كل الفيديوهات إلى `output/`.
 - `python3 render.py --id 01-02` يصدّر فيديو واحداً، و`--preview 01-02` يحفظ لقطات PNG فقط.
 
+- `python3 add_music.py` يضيف الموسيقى الخلفية (`assets/audio/background.m4a`) ويحفظ النسخ النهائية في `final/`.
+
 يحتاج Python و Pillow (مع raqm) و ffmpeg.
