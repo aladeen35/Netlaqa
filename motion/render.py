@@ -173,8 +173,8 @@ def scene_intro(d, t, data, video):
     put(d, (W / 2, 710), nums, font(36, "Medium"), GREY, a, "ma", rtl=False)
 
 
-def scene_tip(d, t, tip):
-    out = ease_in(prog(t, TIP - 0.5, 0.5))
+def scene_tip(d, t, tip, dur=TIP):
+    out = ease_in(prog(t, dur - 0.5, 0.5))
     vis = 1 - out
     sx = -80 * out
 
@@ -214,8 +214,9 @@ def scene_tip(d, t, tip):
 
     # Arabic body, auto-sized, line-by-line reveal
     bf, blines, blh = fit_lines(d, tip["body"], "Medium", [44, 41, 38, 35, 32], TEXT_W, 960 - y, 1.55)
+    step = min(0.35, max(0.0, (dur - 3.0) * 0.6) / max(1, len(blines)))
     for i, line in enumerate(blines):
-        pl = ease_out(prog(t, 1.3 + i * 0.35, 0.6))
+        pl = ease_out(prog(t, 1.3 + i * step, 0.6))
         put(d, (RIGHT - 40 * (1 - pl) + sx, y + i * blh), line, bf, BODY, pl * vis)
 
 
@@ -229,13 +230,34 @@ def scene_outro(img, d, t, data):
     put(d, (W / 2, y + 80), "#معلومة_على_السريع   #QuickFact", font(32, "Medium"), GREY, pc, "ma")
 
 
+VOICE_DIR = ROOT / "voice"
+VOICE_LEAD = 0.5           # voice starts this long after a fact appears
+
+
+def voice_len(num):
+    p = VOICE_DIR / f"{num}.wav"
+    if not p.exists():
+        return None
+    out = subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                                   "-of", "csv=p=0", str(p)])
+    return float(out)
+
+
+def tip_durations(video):
+    durs = []
+    for tp in video["tips"]:
+        v = voice_len(tp["num"])
+        durs.append(TIP if v is None else max(TIP, VOICE_LEAD + v + 1.2))
+    return durs
+
+
 def total_time(video):
-    return INTRO + TIP * len(video["tips"]) + OUTRO
+    return INTRO + sum(tip_durations(video)) + OUTRO
 
 
 def render_frame(t, data, video):
-    total = total_time(video)
-    n = len(video["tips"])
+    durs = tip_durations(video) if "_durs" not in video else video["_durs"]
+    total = INTRO + sum(durs) + OUTRO
     base = background(t)
     img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
@@ -246,12 +268,15 @@ def render_frame(t, data, video):
     d.line((W - m - L, m, W - m, m), fill=GOLD + (200,), width=3)
     d.line((m, H - m, m + L, H - m), fill=GOLD + (200,), width=3)
 
-    tips_end = INTRO + TIP * n
+    tips_end = INTRO + sum(durs)
     if t < INTRO:
         scene_intro(d, t, data, video)
     elif t < tips_end:
-        k = int((t - INTRO) // TIP)
-        scene_tip(d, t - INTRO - k * TIP, video["tips"][k])
+        k, start = 0, INTRO
+        while t >= start + durs[k]:
+            start += durs[k]
+            k += 1
+        scene_tip(d, t - start, video["tips"][k], durs[k])
     else:
         scene_outro(img, d, t - tips_end, data)
 
@@ -272,6 +297,7 @@ def render_video(data, video):
            "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
            "-c:v", "libx264", "-preset", "medium", "-crf", "18",
            "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(path)]
+    video["_durs"] = tip_durations(video)   # cache: avoid ffprobe per frame
     proc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     for i in range(int(total_time(video) * FPS)):
         proc.stdin.write(render_frame(i / FPS, data, video).tobytes())
@@ -289,6 +315,7 @@ def main():
     vids = data["videos"]
     if a.preview:
         v = next(v for v in vids if v["id"] == a.preview)
+        v["_durs"] = tip_durations(v)
         OUT.mkdir(exist_ok=True)
         ts = [1.8] + [INTRO + k * TIP + 5 for k in range(len(v["tips"]))] + [total_time(v) - 0.3]
         for t in ts:
