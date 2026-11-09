@@ -52,7 +52,7 @@ def main():
             fc.append(f"[{i + 2}:a]aresample=44100,pan=stereo|c0=c0|c1=c0,"
                       f"adelay={ms}|{ms},volume=1.6[v{i}]")
             labels.append(f"[v{i}]")
-        fc.append("".join(labels) + f"amix=inputs={len(labels)}:duration=first:normalize=0[a]")
+        fc.append("".join(labels) + f"amix=inputs={len(labels)}:duration=first:normalize=0,alimiter=limit=0.9[a]")
         cmd += ["-filter_complex", ";".join(fc), "-map", "0:v", "-map", "[a]",
                 "-c:v", "copy", "-c:a", "aac", "-b:a", "128k",
                 "-t", f"{total:.3f}", "-movflags", "+faststart",

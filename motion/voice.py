@@ -37,8 +37,16 @@ def main():
     if not todo:
         print("nothing to do")
         return
+    import soundfile as sf
     import torch
+    import torchaudio
     from TTS.api import TTS
+
+    def _load(path, *a, **k):  # avoid torchcodec (version-mismatched); read with soundfile
+        data, sr = sf.read(str(path), dtype="float32", always_2d=True)
+        return torch.from_numpy(data.T.copy()), sr
+
+    torchaudio.load = _load
     torch.set_num_threads(4)
     tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2")
     OUT.mkdir(exist_ok=True)
