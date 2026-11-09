@@ -43,11 +43,11 @@ LANG = "ar"
 TEXTS = {
     "ar": {"title": "معلومة على السريع", "sub": "Quick Fact",
            "cta": "تابعني على LinkedIn للمزيد",
-           "regards": "مع تحيات المهندس علاء الدين",
+           "regards": "مع تحيات المهندس علاء الدين عمر",
            "tags": "#معلومة_على_السريع   #QuickFact"},
     "en": {"title": "Quick Fact", "sub": "Quality · Food Safety · AI",
            "cta": "Follow me on LinkedIn for more",
-           "regards": "With regards, Eng. Alaeldeen",
+           "regards": "With regards, Eng. Alaeldeen Omar",
            "tags": "#QuickFact   #FoodSafety"},
 }
 

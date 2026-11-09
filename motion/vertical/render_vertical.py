@@ -39,11 +39,14 @@ IMG_H = 880                 # photo area height
 RIGHT = W - 120              # text edges (leave room for TikTok side buttons)
 LEFT = 90
 TEXT_W = W - 230
-REVEAL = 1.9                 # seconds to build a photo from particles
+REVEAL = 1.3                 # seconds to build a photo from particles
 DISSOLVE = 0.7               # seconds to dissolve at the end of a fact
 GRID = 18                    # particle spacing in px
 
 IMAGES = HERE / "images"
+V_INTRO = 3.6                # longer, branded opening
+R.INTRO = V_INTRO            # voice/mix offsets follow the vertical intro
+WM_POS, WM_W = (60, 50), 210  # fixed logo position/size
 
 # ---------------------------------------------------------------- helpers
 clamp, ease_out, ease_in, prog = R.clamp, R.ease_out, R.ease_in, R.prog
@@ -56,6 +59,11 @@ def ease_io(t):
 
 def rtl():
     return R.LANG == "ar"
+
+
+def comp(img, layer, pos=(0, 0)):
+    """Alpha-blend an RGBA layer onto the RGB canvas."""
+    img.paste(layer, (int(pos[0]), int(pos[1])), layer)
 
 
 _photo_cache = {}
@@ -104,7 +112,7 @@ class Particles:
                 self.p.append({
                     "tx": tx, "ty": ty, "c": (r, g, b), "a": a,
                     "ang": ang, "hy": hy, "rad": rnd.uniform(140, 260),
-                    "delay": (tx / W) * 0.75 + rnd.uniform(0, 0.25),   # follows the cursor sweep
+                    "delay": (tx / W) * 0.45 + rnd.uniform(0, 0.12),   # follows the cursor sweep
                     "vx": rnd.uniform(-1, 1), "vy": rnd.uniform(-1.6, -0.4),
                 })
 
@@ -112,7 +120,7 @@ class Particles:
         """mode 'in': helix -> photo (t in 0..REVEAL). mode 'out': photo -> scatter (t in 0..DISSOLVE)."""
         for q in self.p:
             if mode == "in":
-                k = ease_io(prog(t, q["delay"], REVEAL - 0.9))
+                k = ease_io(prog(t, q["delay"], REVEAL - 0.6))
                 spin = q["ang"] + t * 3.2
                 hx = W * 0.62 + math.cos(spin) * q["rad"]
                 hy = q["hy"] + math.sin(spin) * 40
@@ -170,9 +178,9 @@ def gold_text(img, xy, txt, fnt, anchor, alpha=1.0):
         gd.line((bbox[0], y, bbox[2], y), fill=c + (255,))
     glow = Image.new("RGBA", img.size, GOLD + (0,))
     glow.putalpha(m.filter(ImageFilter.GaussianBlur(18)).point(lambda v: int(v * 0.5)))
-    img.alpha_composite(glow)
+    comp(img, glow)
     grad.putalpha(m)
-    img.alpha_composite(grad)
+    comp(img, grad)
 
 
 def words_reveal(d, lines, fnt, lh, y, t, t0, t1, edge, r):
@@ -214,7 +222,7 @@ def background(t):
         x = i * 90 + off
         ld.line((x, H, x + 700, 0), fill=(255, 255, 255, 7), width=2)
     img.alpha_composite(lines)
-    return img
+    return img.convert("RGB")
 
 
 def helix(d, t, cx, cy, h, n=420, alpha=1.0, conv=0.0, target=None):
@@ -234,12 +242,12 @@ def helix(d, t, cx, cy, h, n=420, alpha=1.0, conv=0.0, target=None):
         d.rectangle((x - s, y - s, x + s, y + s), fill=GOLD_HI + (a,))
 
 
-_logo_pts = None
+_logo_pts = {}
 
 
 def logo_points(w=520, y0=520):
-    global _logo_pts
-    if _logo_pts is None:
+    key = (w, y0)
+    if key not in _logo_pts:
         lg = R.logo_sized(w)
         a = lg.getchannel("A")
         pts = []
@@ -248,22 +256,80 @@ def logo_points(w=520, y0=520):
                 if a.getpixel((x, y)) > 128:
                     pts.append(((W - w) / 2 + x, y0 + y))
         random.Random(3).shuffle(pts)
-        _logo_pts = pts
-    return _logo_pts
+        _logo_pts[key] = pts
+    return _logo_pts[key]
 
 
 def scene_intro(img, d, t, video):
+    """Opening, like the website preloader:
+    0.0-1.2  AB logo builds from gold particles, loading line + counter 000 -> 100
+    1.2-1.7  flash; the logo flies to its fixed corner position
+    1.3-3.6  helix bursts open, bolt badge pops, title slams in, subtitle + numbers
+    """
     tx = R.TEXTS[R.LANG]
-    a = 1 - ease_in(prog(t, R.INTRO - 0.4, 0.4))
-    helix(d, t, W / 2, 620, 760, alpha=a * ease_out(prog(t, 0, 0.5)))
-    p = ease_out(prog(t, 0.35, 0.7))
-    R.put(d, (W / 2, 1080 + 40 * (1 - p)), tx["title"], R.font(118 if rtl() else 130, "Black"),
-          WHITE, p * a, "ma", rtl=rtl())
-    lw = 460 * ease_out(prog(t, 0.7, 0.8)) * a
-    d.rectangle((W / 2 - lw / 2, 1290, W / 2 + lw / 2, 1297), fill=GOLD + (int(255 * a),))
-    R.put(d, (W / 2, 1320), tx["sub"], R.font(58 if rtl() else 50, "Bold"), GOLD, p * a, "ma", rtl=False)
+    out = ease_in(prog(t, V_INTRO - 0.45, 0.45))
+    a = 1 - out
+
+    # 1) logo from particles + loader
+    pts = logo_points(w=360, y0=720)
+    conv = ease_io(prog(t, 0.0, 0.9))
+    if t < 1.3:
+        helix(d, t, W / 2, 820, 700, n=len(pts), alpha=1 - prog(t, 0.95, 0.3), conv=conv, target=pts)
+    fly = ease_io(prog(t, 1.2, 0.5))
+    if t > 0.75:
+        la = ease_out(prog(t, 0.75, 0.35))
+        w = int(360 + (WM_W - 360) * fly)
+        x = (W - 360) / 2 + (WM_POS[0] - (W - 360) / 2) * fly
+        y = 720 + (WM_POS[1] - 720) * fly
+        comp(img, R.logo_sized(w, la), (x, y))
+    if t < 1.5:
+        la = 1 - prog(t, 1.2, 0.3)
+        p = ease_io(prog(t, 0.1, 1.0))
+        d.rectangle((W / 2 - 200, 1040, W / 2 + 200, 1043), fill=(255, 255, 255, int(40 * la)))
+        d.rectangle((W / 2 - 200, 1040, W / 2 - 200 + 400 * p, 1043), fill=GOLD + (int(255 * la),))
+        R.put(d, (W / 2, 1075), f"{int(p * 100):03d}", R.font(40, "Bold"), GOLD, la, "ma", rtl=False)
+    # flash ring when the logo leaves
+    fr = prog(t, 1.2, 0.6)
+    if 0 < fr < 1:
+        r_ = 80 + 900 * ease_out(fr)
+        d.ellipse((W / 2 - r_, 900 - r_, W / 2 + r_, 900 + r_), outline=GOLD_HI + (int(200 * (1 - fr)),), width=6)
+
+    # 2) helix bursts open behind the title
+    if t > 1.3:
+        hb = ease_out(prog(t, 1.3, 0.8))
+        helix(d, t, W / 2, 700, 300 + 700 * hb, n=360, alpha=0.55 * a * hb)
+    # bolt badge pops with overshoot
+    pb = prog(t, 1.55, 0.45)
+    if pb > 0:
+        sc = 1 + 0.35 * math.sin(pb * math.pi) * (1 - pb) * 2 if pb < 1 else 1
+        r_ = 78 * min(1, pb * 1.6) * sc
+        d.ellipse((W / 2 - r_, 760 - r_, W / 2 + r_, 760 + r_), fill=GOLD + (int(255 * a),))
+        R.bolt(d, W / 2, 760, 50 * min(1, pb * 1.6) * sc, BG + (int(255 * a),))
+    # title slams in (scale down from big + glow)
+    pt = prog(t, 1.75, 0.45)
+    if pt > 0:
+        e = ease_out(pt)
+        base_sz = 118 if rtl() else 130
+        while d.textlength(tx["title"], font=R.font(base_sz, "Black"), direction="rtl" if rtl() else None,
+                           language="ar" if rtl() else None) > W - 160:
+            base_sz -= 4
+        size = int(base_sz * (1.3 - 0.3 * e))
+        layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        ld = ImageDraw.Draw(layer)
+        R.put(ld, (W / 2, 900 + 20 * (1 - e)), tx["title"], R.font(size, "Black"), WHITE, e * a, "ma", rtl=rtl())
+        g = layer.filter(ImageFilter.GaussianBlur(14))
+        g.putalpha(g.getchannel("A").point(lambda v: int(v * 0.6 * (1 - prog(t, 2.2, 0.6)))))
+        tint = Image.new("RGBA", (W, H), GOLD_HI + (0,))
+        tint.putalpha(g.getchannel("A"))
+        comp(img, tint)
+        comp(img, layer)
+    lw = 460 * ease_out(prog(t, 2.1, 0.5)) * a
+    d.rectangle((W / 2 - lw / 2, 1110, W / 2 + lw / 2, 1117), fill=GOLD + (int(255 * a),))
+    p2 = ease_out(prog(t, 2.3, 0.5))
+    R.put(d, (W / 2, 1140 + 20 * (1 - p2)), tx["sub"], R.font(58 if rtl() else 50, "Bold"), GOLD, p2 * a, "ma", rtl=False)
     nums = "  ·  ".join("#" + tp["num"] for tp in video["tips"])
-    R.put(d, (W / 2, 1420), nums, R.font(44, "Medium"), GREY, p * a, "ma", rtl=False)
+    p3 = ease_out(prog(t, 2.55, 0.5))
+    R.put(d, (W / 2, 1240 + 20 * (1 - p3)), nums, R.font(46, "Medium"), GREY, p3 * a, "ma", rtl=False)
 
 
 def scene_tip(img, d, t, tip, dur, parts, voice):
@@ -278,11 +344,11 @@ def scene_tip(img, d, t, tip, dur, parts, voice):
     ph, _ = photo(tip["num"])
     if t < REVEAL + 0.3:
         parts.draw(d, t, "in")
-    pa = ease_out(prog(t, REVEAL - 0.35, 0.6)) * (1 - prog(t, dur - DISSOLVE, 0.25))
+    pa = ease_out(prog(t, REVEAL - 0.25, 0.45)) * (1 - prog(t, dur - DISSOLVE, 0.25))
     if pa > 0.01:
         layer = ph.copy()
         layer.putalpha(layer.getchannel("A").point(lambda v: int(v * pa)))
-        img.alpha_composite(layer, (0, 0))
+        comp(img, layer, (0, 0))
     if t > dur - DISSOLVE:
         parts.draw(d, t - (dur - DISSOLVE), "out")
     # QC cursor sweeps left->right ahead of the particle front
@@ -341,7 +407,7 @@ def scene_tip(img, d, t, tip, dur, parts, voice):
         layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         words_reveal(ImageDraw.Draw(layer), bl, bf, blh, y, t, t0, t1, edge - 80 * out * sgn, r)
         layer.putalpha(layer.getchannel("A").point(lambda v: int(v * vis)))
-        img.alpha_composite(layer)
+        comp(img, layer)
     else:
         words_reveal(d, bl, bf, blh, y, t, t0, t1, edge, r)
 
@@ -354,7 +420,7 @@ def scene_outro(img, d, t):
     pl = ease_out(prog(t, 1.0, 0.6))
     if pl > 0.01:
         lg = R.logo_sized(520, pl)
-        img.alpha_composite(lg, ((W - lg.width) // 2, 520))
+        comp(img, lg, ((W - lg.width) // 2, 520))
     y = 520 + R.logo_sized(520).height + 70
     p1 = ease_out(prog(t, 1.2, 0.6))
     R.put(d, (W / 2, y), tx["regards"], R.font(58, "Bold"), WHITE, p1, "ma", rtl=rtl())
@@ -374,8 +440,10 @@ def plan(video):
 
 
 def frame(t, video, pl):
-    img = background(t)
-    d = ImageDraw.Draw(img)
+    """Return one RGB frame (W x H)."""
+    img = background(t)                          # RGB frame: photos/logos are pasted here
+    ov = Image.new("RGBA", (W, H), (0, 0, 0, 0))  # text, particles, shapes go on this layer
+    d = ImageDraw.Draw(ov)
     durs = pl["durs"]
     tips_end = R.INTRO + sum(durs)
     if t < R.INTRO:
@@ -391,10 +459,12 @@ def frame(t, video, pl):
     swoosh(d, t, H - 95, alpha=0.8, flip=True)
     # fixed logo (top-left); hidden only while the outro builds the big logo
     wm = 1 - ease_out(prog(t, tips_end, 0.4))
-    if wm > 0.01:
-        img.alpha_composite(R.logo_sized(210, 0.95 * wm), (60, 50))
+    if t >= 1.7 and wm > 0.01:
+        comp(img, R.logo_sized(WM_W, 0.95 * wm), WM_POS)
     d.rectangle((0, H - 10, int(W * clamp(t / pl["total"])), H), fill=GOLD + (255,))
-    return img.convert("RGB")
+    img.paste(ov, (0, 0), ov)
+    assert img.mode == "RGB"
+    return img
 
 
 def render_video(video, out_dir):
@@ -402,8 +472,8 @@ def render_video(video, out_dir):
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / f"quick_fact_{video['id']}.mp4"
     cmd = ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
-           "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-preset", "medium",
-           "-crf", "20", "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(path)]
+           "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-preset", "slow",
+           "-crf", "27", "-tune", "animation", "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(path)]
     proc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     for i in range(int(pl["total"] * FPS)):
         proc.stdin.write(frame(i / FPS, video, pl).tobytes())
@@ -426,7 +496,7 @@ def main():
         pl = plan(v)
         out_dir.mkdir(parents=True, exist_ok=True)
         s = R.INTRO
-        for t in (1.5, s + 0.8, s + 1.5, s + pl["durs"][0] * 0.6, s + pl["durs"][0] - 0.35,
+        for t in (0.6, 1.0, 1.45, 2.0, 3.0, s + 0.8, s + 1.5, s + pl["durs"][0] * 0.6, s + pl["durs"][0] - 0.35,
                   pl["total"] - 2.6, pl["total"] - 0.3):
             frame(t, v, pl).save(out_dir / f"preview_{v['id']}_{t:05.1f}.png")
         return

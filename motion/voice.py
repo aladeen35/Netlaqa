@@ -13,8 +13,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent
 SPEAKER = ROOT / "assets/voice/my_voice.wav"
-OUTRO_TEXT = {"ar": "مع تحيات المهندس علاء الدين.",
-              "en": "With regards, from Engineer Alaeldeen."}
+OUTRO_TEXT = {"ar": "مع تحيات المهندس علاء الدين عمر.",
+              "en": "With regards, from Engineer Alaeldeen Omar."}
 
 # English pronunciation fixes (applied in order)
 EN_FIX = [
