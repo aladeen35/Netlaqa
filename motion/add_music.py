@@ -24,12 +24,15 @@ def main():
     ap.add_argument("--volume", type=float, default=0.8, help="music volume without voice")
     ap.add_argument("--duck", type=float, default=0.15, help="music volume under voice")
     ap.add_argument("--lang", default="ar", choices=["ar", "en"])
+    ap.add_argument("--id", nargs="*", help="only these video ids")
     a = ap.parse_args()
     render.set_lang(a.lang)
     data = json.loads((ROOT / "tips.json").read_text(encoding="utf-8"))
     dst = ROOT / ("final" if a.lang == "ar" else f"final_{a.lang}")
     dst.mkdir(exist_ok=True)
     for video in data["videos"]:
+        if a.id and video["id"] not in a.id:
+            continue
         src = render.OUT / f"quick_fact_{video['id']}.mp4"
         if not src.exists():
             continue
