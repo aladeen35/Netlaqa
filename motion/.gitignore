@@ -4,3 +4,7 @@ assets/voice/
 voice/
 voice_en/
 __pycache__/
+vertical/output/
+vertical/output_en/
+vertical/candidates/
+vertical/fetch2.log

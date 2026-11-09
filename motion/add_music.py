@@ -25,19 +25,24 @@ def main():
     ap.add_argument("--duck", type=float, default=0.15, help="music volume under voice")
     ap.add_argument("--lang", default="ar", choices=["ar", "en"])
     ap.add_argument("--id", nargs="*", help="only these video ids")
+    ap.add_argument("--vertical", action="store_true", help="mix the vertical (9:16) videos")
     a = ap.parse_args()
     render.set_lang(a.lang)
     data = json.loads((ROOT / "tips.json").read_text(encoding="utf-8"))
-    dst = ROOT / ("final" if a.lang == "ar" else f"final_{a.lang}")
+    sfx = "" if a.lang == "ar" else f"_{a.lang}"
+    base = ROOT / "vertical" if a.vertical else ROOT
+    src_dir = base / f"output{sfx}"
+    dst = base / f"final{sfx}"
     dst.mkdir(exist_ok=True)
     for video in data["videos"]:
         if a.id and video["id"] not in a.id:
             continue
-        src = render.OUT / f"quick_fact_{video['id']}.mp4"
+        src = src_dir / f"quick_fact_{video['id']}.mp4"
         if not src.exists():
             continue
         durs = render.tip_durations(video)
-        total = render.INTRO + sum(durs) + render.outro_len()
+        total = float(subprocess.check_output(
+            ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(src)]))
         voices, start = [], render.INTRO
         for tp, d in zip(video["tips"], durs):
             wav = render.VOICE_DIR / f"{tp['num']}.wav"
