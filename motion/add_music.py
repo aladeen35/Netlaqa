@@ -23,22 +23,27 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--volume", type=float, default=0.8, help="music volume without voice")
     ap.add_argument("--duck", type=float, default=0.15, help="music volume under voice")
+    ap.add_argument("--lang", default="ar", choices=["ar", "en"])
     a = ap.parse_args()
+    render.set_lang(a.lang)
     data = json.loads((ROOT / "tips.json").read_text(encoding="utf-8"))
-    dst = ROOT / "final"
+    dst = ROOT / ("final" if a.lang == "ar" else f"final_{a.lang}")
     dst.mkdir(exist_ok=True)
     for video in data["videos"]:
-        src = ROOT / "output" / f"quick_fact_{video['id']}.mp4"
+        src = render.OUT / f"quick_fact_{video['id']}.mp4"
         if not src.exists():
             continue
         durs = render.tip_durations(video)
-        total = render.INTRO + sum(durs) + render.OUTRO
+        total = render.INTRO + sum(durs) + render.outro_len()
         voices, start = [], render.INTRO
         for tp, d in zip(video["tips"], durs):
             wav = render.VOICE_DIR / f"{tp['num']}.wav"
             if wav.exists():
                 voices.append((wav, start + render.VOICE_LEAD))
             start += d
+        greet = render.VOICE_DIR / "outro.wav"
+        if voices and greet.exists():
+            voices.append((greet, start + render.VOICE_LEAD))
         vol = a.duck if voices else a.volume
         cmd = ["ffmpeg", "-y", "-v", "error", "-i", str(src),
                "-stream_loop", "-1", "-i", str(MUSIC)]

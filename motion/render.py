@@ -36,7 +36,33 @@ TIP = 8.5
 OUTRO = 2.8
 
 RIGHT = W - 110            # right text edge (RTL)
+LEFT = 110                 # left text edge (LTR)
 TEXT_W = W - 250           # max text width
+
+LANG = "ar"
+TEXTS = {
+    "ar": {"title": "معلومة على السريع", "sub": "Quick Fact",
+           "cta": "تابعني على LinkedIn للمزيد",
+           "regards": "مع تحيات المهندس علاء الدين",
+           "tags": "#معلومة_على_السريع   #QuickFact"},
+    "en": {"title": "Quick Fact", "sub": "Quality · Food Safety · AI",
+           "cta": "Follow me on LinkedIn for more",
+           "regards": "With regards, Eng. Alaeldeen",
+           "tags": "#QuickFact   #FoodSafety"},
+}
+
+
+def set_lang(lang):
+    """Switch language: affects layout direction, texts and in/out folders."""
+    global LANG, OUT, VOICE_DIR
+    LANG = lang
+    sfx = "" if lang == "ar" else f"_{lang}"
+    OUT = ROOT / f"output{sfx}"
+    VOICE_DIR = ROOT / f"voice{sfx}"
+
+
+def rtl():
+    return LANG == "ar"
 
 _font_cache = {}
 
@@ -102,6 +128,8 @@ def tlen(d, txt, fnt):
 
 
 def put(d, xy, txt, fnt, fill, alpha=1.0, anchor="ra", rtl=True):
+    # Cairo has no arrow glyphs; "›" is mirrored to "‹" inside RTL runs
+    txt = txt.replace("←", "›").replace("→", "›")
     kw = {"direction": "rtl", "language": "ar"} if rtl else {}
     d.text(xy, txt, font=fnt, fill=fill + (int(255 * clamp(alpha)),), anchor=anchor, **kw)
 
@@ -165,10 +193,12 @@ def scene_intro(d, t, data, video):
         r = 62 * pb
         d.ellipse((W / 2 - r, 330 - r, W / 2 + r, 330 + r), fill=GOLD + (int(255 * a),))
         bolt(d, W / 2, 330, 40 * pb, BG + (int(255 * a),))
-    put(d, (W / 2, 430 + 30 * (1 - p_in)), data["series_title"], font(96, "Black"), WHITE, a, "ma")
+    tx = TEXTS[LANG]
+    put(d, (W / 2, 430 + 30 * (1 - p_in)), tx["title"], font(96 if rtl() else 110, "Black"),
+        WHITE, a, "ma", rtl=rtl())
     lw = 380 * ease_out(prog(t, 0.6, 0.8)) * a
     d.rectangle((W / 2 - lw / 2, 600, W / 2 + lw / 2, 606), fill=GOLD + (int(255 * a),))
-    put(d, (W / 2, 625), data["series_en"], font(52, "Bold"), GOLD, a, "ma", rtl=False)
+    put(d, (W / 2, 625), tx["sub"], font(52 if rtl() else 44, "Bold"), GOLD, a, "ma", rtl=False)
     nums = " · ".join("#" + tp["num"] for tp in video["tips"])
     put(d, (W / 2, 710), nums, font(36, "Medium"), GREY, a, "ma", rtl=False)
 
@@ -176,48 +206,56 @@ def scene_intro(d, t, data, video):
 def scene_tip(d, t, tip, dur=TIP):
     out = ease_in(prog(t, dur - 0.5, 0.5))
     vis = 1 - out
-    sx = -80 * out
+    r = rtl()
+    sgn = 1 if r else -1               # direction of "inwards" motion
+    edge = RIGHT if r else LEFT        # text anchor edge
+    anc = "ra" if r else "la"
+    sx = -80 * out * sgn
+    title = tip["title"] if r else tip["en_title"]
+    body = tip["body"] if r else tip["en_body"]
+    pill = tip["en_title"] if r else f"Quick Fact #{tip['num']}"
 
-    # big background number
+    # big background number (always top-right)
     pn = ease_out(prog(t, 0.0, 0.6))
     put(d, (RIGHT + 20 * (1 - pn), 20), tip["num"], font(220, "Black"), GOLD,
         0.22 * pn * vis, "ra", rtl=False)
 
-    # Arabic title (wraps to max 2 lines)
-    tf, tlines, tlh = fit_lines(d, tip["title"], "ExtraBold", [74, 66, 58], TEXT_W, 2 * 74 * 1.45, 1.45)
+    # title (wraps to max 2 lines)
+    tf, tlines, tlh = fit_lines(d, title, "ExtraBold", [74, 66, 58], TEXT_W, 2 * 74 * 1.45, 1.45)
     y = 270
     pt = ease_out(prog(t, 0.3, 0.6))
-    for i, line in enumerate(tlines):
-        put(d, (RIGHT - 60 * (1 - pt) + sx, y), line, tf, WHITE, pt * vis)
+    for line in tlines:
+        put(d, (edge - 60 * (1 - pt) * sgn + sx, y), line, tf, WHITE, pt * vis, anc, rtl=r)
         y += tlh
     y += 18
 
-    # English title pill
+    # pill
     ph = ease_out(prog(t, 0.7, 0.6))
-    ef = font(40, "Bold")
-    for s in (40, 36, 32, 28):
-        ef = font(s, "Bold")
-        if d.textlength(tip["en_title"], font=ef) <= TEXT_W - 50:
+    for sz in (40, 36, 32, 28):
+        ef = font(sz, "Bold")
+        if d.textlength(pill, font=ef) <= TEXT_W - 50:
             break
-    ew = d.textlength(tip["en_title"], font=ef)
-    x1 = RIGHT + sx
-    x0 = x1 - (ew + 50) * ph
+    ew = d.textlength(pill, font=ef)
     if ph > 0.01:
-        d.rounded_rectangle((x0, y, x1, y + 70), 16, fill=GOLD + (int(255 * vis),))
-        put(d, (x1 - 25, y + 35), tip["en_title"], ef, BG,
-            clamp((ph - 0.6) / 0.4) * vis, "rm", rtl=False)
+        a_edge = edge + sx
+        b_edge = a_edge - (ew + 50) * ph * sgn
+        d.rounded_rectangle((min(a_edge, b_edge), y, max(a_edge, b_edge), y + 70), 16,
+                            fill=GOLD + (int(255 * vis),))
+        put(d, (a_edge - 25 * sgn, y + 35), pill, ef, BG,
+            clamp((ph - 0.6) / 0.4) * vis, "rm" if r else "lm", rtl=False)
     y += 70 + 40
 
     # gold side bar spans the whole block
     bh = (900 - 270) * ease_out(prog(t, 0.15, 0.7)) * vis
-    d.rectangle((RIGHT + 22, 280, RIGHT + 30, 280 + bh), fill=GOLD + (255,))
+    bx = RIGHT + 22 if r else LEFT - 30
+    d.rectangle((bx, 280, bx + 8, 280 + bh), fill=GOLD + (255,))
 
-    # Arabic body, auto-sized, line-by-line reveal
-    bf, blines, blh = fit_lines(d, tip["body"], "Medium", [44, 41, 38, 35, 32], TEXT_W, 960 - y, 1.55)
+    # body, auto-sized, line-by-line reveal
+    bf, blines, blh = fit_lines(d, body, "Medium", [44, 41, 38, 35, 32], TEXT_W, 960 - y, 1.55)
     step = min(0.35, max(0.0, (dur - 3.0) * 0.6) / max(1, len(blines)))
     for i, line in enumerate(blines):
         pl = ease_out(prog(t, 1.3 + i * step, 0.6))
-        put(d, (RIGHT - 40 * (1 - pl) + sx, y + i * blh), line, bf, BODY, pl * vis)
+        put(d, (edge - 40 * (1 - pl) * sgn + sx, y + i * blh), line, bf, BODY, pl * vis, anc, rtl=r)
 
 
 def scene_outro(img, d, t, data):
@@ -226,8 +264,11 @@ def scene_outro(img, d, t, data):
     img.alpha_composite(lg, ((W - lg.width) // 2, int(280 - 30 * (1 - p))))
     pc = ease_out(prog(t, 0.6, 0.7))
     y = 280 + lg.height + 50
-    put(d, (W / 2, y), data["cta"], font(46, "Bold"), GOLD, pc, "ma")
-    put(d, (W / 2, y + 80), "#معلومة_على_السريع   #QuickFact", font(32, "Medium"), GREY, pc, "ma")
+    tx = TEXTS[LANG]
+    put(d, (W / 2, y), tx["regards"], font(46, "Bold"), WHITE, pc, "ma", rtl=rtl())
+    pc2 = ease_out(prog(t, 1.2, 0.7))
+    put(d, (W / 2, y + 80), tx["cta"], font(40, "Bold"), GOLD, pc2, "ma", rtl=rtl())
+    put(d, (W / 2, y + 150), tx["tags"], font(30, "Medium"), GREY, pc2, "ma", rtl=rtl())
 
 
 VOICE_DIR = ROOT / "voice"
@@ -251,13 +292,18 @@ def tip_durations(video):
     return durs
 
 
+def outro_len():
+    v = voice_len("outro")
+    return OUTRO if v is None else max(OUTRO, VOICE_LEAD + v + 1.5)
+
+
 def total_time(video):
-    return INTRO + sum(tip_durations(video)) + OUTRO
+    return INTRO + sum(tip_durations(video)) + outro_len()
 
 
 def render_frame(t, data, video):
     durs = tip_durations(video) if "_durs" not in video else video["_durs"]
-    total = INTRO + sum(durs) + OUTRO
+    total = INTRO + sum(durs) + video.get("_outro", OUTRO)
     base = background(t)
     img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
@@ -298,6 +344,7 @@ def render_video(data, video):
            "-c:v", "libx264", "-preset", "medium", "-crf", "18",
            "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(path)]
     video["_durs"] = tip_durations(video)   # cache: avoid ffprobe per frame
+    video["_outro"] = outro_len()
     proc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     for i in range(int(total_time(video) * FPS)):
         proc.stdin.write(render_frame(i / FPS, data, video).tobytes())
@@ -310,12 +357,15 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--id", nargs="*")
     ap.add_argument("--preview")
+    ap.add_argument("--lang", default="ar", choices=["ar", "en"])
     a = ap.parse_args()
+    set_lang(a.lang)
     data = json.loads((ROOT / "tips.json").read_text(encoding="utf-8"))
     vids = data["videos"]
     if a.preview:
         v = next(v for v in vids if v["id"] == a.preview)
         v["_durs"] = tip_durations(v)
+        v["_outro"] = outro_len()
         OUT.mkdir(exist_ok=True)
         ts = [1.8] + [INTRO + k * TIP + 5 for k in range(len(v["tips"]))] + [total_time(v) - 0.3]
         for t in ts:

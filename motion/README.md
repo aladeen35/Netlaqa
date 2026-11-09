@@ -14,4 +14,8 @@
 - `/home/user/xtts-venv/bin/python voice.py` يولّد صوت كل معلومة في `voice/` بنموذج XTTS-v2. النص المنطوق للأرقام والاختصارات في `content/speech.json`.
 - بعدها `python3 render.py` (المدة تُضبط على طول الصوت) ثم `python3 add_music.py` (الموسيقى تنخفض تحت الصوت).
 
+## النسخة الإنجليزية
+- أضف `--lang en` لكل من `voice.py` و`render.py` و`add_music.py`، والناتج في `final_en/`.
+- `bash run_all.sh` ينفذ كل الخطوات للغتين.
+
 يحتاج Python و Pillow (مع raqm) و ffmpeg.

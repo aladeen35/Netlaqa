@@ -13,7 +13,33 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent
 SPEAKER = ROOT / "assets/voice/my_voice.wav"
-OUT = ROOT / "voice"
+OUTRO_TEXT = {"ar": "مع تحيات المهندس علاء الدين.",
+              "en": "With regards, from Engineer Alaeldeen."}
+
+# English pronunciation fixes (applied in order)
+EN_FIX = [
+    (r"(\d+)\s*[–-]\s*(\d+)", r"\1 to \2"),
+    (r"°C", " degrees Celsius"),
+    (r"(\d+)\s*g\b", r"\1 grams"),
+    (r"(\d+)%", r"\1 percent"),
+    (r"→", ","),
+    (r"\bHACCP's\b", "hassip's"), (r"\bHACCP\b", "hassip"),
+    (r"\bFIFO\b", "fife-oh"), (r"\bFEFO\b", "fee-foh"),
+    (r"\bCCPs\b", "C C Ps"), (r"\bCCP\b", "C C P"), (r"\bPRPs\b", "P R Ps"), (r"\bPRP\b", "P R P"),
+    (r"\bIoT\b", "I o T"), (r"\bNLP\b", "N L P"), (r"\bSOP\b", "S O P"), (r"\bSDS\b", "S D S"),
+    (r"\bPPE\b", "P P E"), (r"\bRTE\b", "ready to eat"), (r"\bAI\b", "A I"), (r"\bEU\b", "E U"),
+    (r"\baw\b", "water activity"), (r"\(water activity\)", ""),
+    (r"\s*\(([^)]*)\)", r", \1,"), 
+]
+
+
+def spoken_en(tip):
+    txt = f'{tip["en_title"]}. {tip["en_body"]}'
+    for pat, rep in EN_FIX:
+        txt = re.sub(pat, rep, txt)
+    txt = re.sub(r"['‘’]", "", txt.replace("vs", "versus"))
+    txt = re.sub(r"\s+([,.?])", r"\1", txt)
+    return re.sub(r"\?[.,]", "?", txt)
 
 
 def spoken(tip, overrides):
@@ -28,12 +54,15 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", nargs="*")
     ap.add_argument("--force", action="store_true")
+    ap.add_argument("--lang", default="ar", choices=["ar", "en"])
     a = ap.parse_args()
+    out = ROOT / ("voice" if a.lang == "ar" else f"voice_{a.lang}")
     data = json.loads((ROOT / "tips.json").read_text(encoding="utf-8"))
     overrides = json.loads((ROOT / "content/speech.json").read_text(encoding="utf-8"))
     tips = [t for v in data["videos"] for t in v["tips"]]
+    tips.append({"num": "outro"})
     todo = [t for t in tips if (not a.only or t["num"] in a.only)
-            and (a.force or not (OUT / f'{t["num"]}.wav').exists())]
+            and (a.force or not (out / f'{t["num"]}.wav').exists())]
     if not todo:
         print("nothing to do")
         return
@@ -49,11 +78,15 @@ def main():
     torchaudio.load = _load
     torch.set_num_threads(4)
     tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2")
-    OUT.mkdir(exist_ok=True)
+    out.mkdir(exist_ok=True)
     for t in todo:
-        path = OUT / f'{t["num"]}.wav'
-        tts.tts_to_file(text=spoken(t, overrides), speaker_wav=str(SPEAKER),
-                        language="ar", file_path=str(path))
+        path = out / f'{t["num"]}.wav'
+        if t["num"] == "outro":
+            text = OUTRO_TEXT[a.lang]
+        else:
+            text = spoken(t, overrides) if a.lang == "ar" else spoken_en(t)
+        tts.tts_to_file(text=text, speaker_wav=str(SPEAKER),
+                        language=a.lang, file_path=str(path))
         print("wrote", path, flush=True)
 
 

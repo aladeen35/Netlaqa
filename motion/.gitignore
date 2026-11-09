@@ -1,4 +1,6 @@
 output/
+output_en/
 assets/voice/
-__pycache__/
 voice/
+voice_en/
+__pycache__/
