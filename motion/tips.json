@@ -1,19 +1,378 @@
 {
-  "series_title": "معلومة جودة سريعة",
+  "series_title": "معلومة على السريع",
+  "series_en": "Quick Fact",
   "cta": "تابعني على LinkedIn للمزيد",
   "videos": [
     {
-      "id": "01",
+      "id": "01-02",
       "tips": [
         {
-          "title": "منطقة الخطر الحراري",
-          "highlight": "5°C — 60°C",
-          "body": "في هذا المدى تتضاعف البكتيريا كل 20 دقيقة تقريباً.\nاحفظ البارد بارداً والساخن ساخناً."
+          "num": "01",
+          "title": "منطقة الخطر في الغذاء",
+          "en_title": "The Food Danger Zone",
+          "body": "بين 5°م و60°م تتضاعف البكتيريا بسرعة كبيرة، وقد يتضاعف عددها كل 20 دقيقة تقريباً. القاعدة الذهبية: اجعل الطعام البارد بارداً (أقل من 5°م) والساخن ساخناً (أعلى من 60°م)، وقلّل وقت بقائه في المنطقة الوسطى.",
+          "en_body": "Between 5°C and 60°C, bacteria multiply fast, roughly doubling every 20 minutes. Golden rule: keep cold food cold (below 5°C), hot food hot (above 60°C), and minimise time in between."
         },
         {
-          "title": "قاعدة FIFO",
-          "highlight": "الوارد أولاً يُصرف أولاً",
-          "body": "رتّب المخزون بحيث يُستخدم الأقدم تاريخاً أولاً.\nأقل هدر… وأمان غذائي أعلى."
+          "num": "02",
+          "title": "الذكاء الاصطناعي يرى ما لا نراه",
+          "en_title": "AI Sees What We Miss",
+          "body": "كاميرات الرؤية الحاسوبية (Computer Vision) في خطوط الإنتاج تفحص كل منتج في أجزاء من الثانية: الحجم، اللون، العيوب، والأجسام الغريبة. هذا يعني فحص 100% من الإنتاج بدل عينات عشوائية.",
+          "en_body": "Computer vision cameras on production lines inspect every unit in milliseconds: size, colour, defects and foreign bodies. That means 100% inspection instead of random sampling."
+        }
+      ]
+    },
+    {
+      "id": "03-04",
+      "tips": [
+        {
+          "num": "03",
+          "title": "مبادئ HACCP السبعة في سطر",
+          "en_title": "HACCP's 7 Principles in One Line",
+          "body": "تحليل المخاطر ← تحديد نقاط التحكم الحرجة ← وضع الحدود الحرجة ← المراقبة ← الإجراء التصحيحي ← التحقق ← التوثيق. سبع خطوات تحوّل سلامة الغذاء من رد فعل إلى وقاية.",
+          "en_body": "Hazard analysis → CCPs → critical limits → monitoring → corrective action → verification → record keeping. Seven steps that turn food safety from reaction into prevention."
+        },
+        {
+          "num": "04",
+          "title": "FIFO أم FEFO؟",
+          "en_title": "FIFO or FEFO?",
+          "body": "FIFO: ما يدخل أولاً يخرج أولاً. FEFO: ما ينتهي أولاً يخرج أولاً. في الأغذية، FEFO أدق لأن تاريخ الانتهاء أهم من تاريخ الاستلام. رتّب مخزنك على أساس الصلاحية.",
+          "en_body": "FIFO: first in, first out. FEFO: first expired, first out. For food, FEFO is safer because expiry matters more than arrival date. Organise storage by shelf life."
+        }
+      ]
+    },
+    {
+      "id": "05-06",
+      "tips": [
+        {
+          "num": "05",
+          "title": "درجة حرارة ماء القهوة",
+          "en_title": "Coffee Brewing Temperature",
+          "body": "أفضل درجة لتحضير القهوة بين 90 و96°م. الماء المغلي يحرق القهوة ويزيد المرارة، والماء الأبرد يستخلص نكهة ضعيفة وحامضة. ثبات الحرارة سر ثبات الكوب.",
+          "en_body": "The ideal brewing range is 90–96°C. Boiling water over-extracts and adds bitterness; cooler water under-extracts and tastes sour. Stable temperature means a consistent cup."
+        },
+        {
+          "num": "06",
+          "title": "الانزلاق أخطر مما تظن",
+          "en_title": "Slips Are a Serious Risk",
+          "body": "الانزلاق والتعثر والسقوط من أكثر إصابات العمل شيوعاً في المطابخ ومصانع الأغذية. الحل بسيط: أرضيات جافة، أحذية مانعة للانزلاق، لافتات تحذير، وتنظيف فوري لأي انسكاب.",
+          "en_body": "Slips, trips and falls are among the most common injuries in kitchens and food plants. Simple fixes: dry floors, non-slip shoes, warning signs, and cleaning spills immediately."
+        }
+      ]
+    },
+    {
+      "id": "07-08",
+      "tips": [
+        {
+          "num": "07",
+          "title": "ألواح التقطيع الملوّنة",
+          "en_title": "Colour-Coded Cutting Boards",
+          "body": "نظام الألوان يمنع التلوث المتبادل: الأحمر للحوم النيئة، الأزرق للأسماك، الأصفر للدواجن، الأخضر للخضار والفاكهة، الأبيض للمخبوزات والألبان، والبني للخضار النيئة غير المغسولة. نظام بسيط يحمي من خطأ كبير.",
+          "en_body": "Colour coding prevents cross-contamination: red for raw meat, blue for fish, yellow for poultry, green for salad and fruit, white for bakery and dairy, brown for unwashed raw vegetables."
+        },
+        {
+          "num": "08",
+          "title": "الذكاء الاصطناعي يتنبأ بالشكوى قبل وقوعها",
+          "en_title": "AI Predicts Complaints Before They Happen",
+          "body": "تحليل بيانات الإنتاج والحرارة والشكاوى السابقة بالتعلم الآلي يكشف الأنماط مبكراً. بدل أن ننتظر الشكوى، نعرف أي دفعة أو فرع أكثر عرضة للمشكلة ونتدخل قبلها.",
+          "en_body": "Machine learning on production, temperature and past complaint data reveals patterns early. Instead of waiting for a complaint, we know which batch or branch is at risk and act first."
+        }
+      ]
+    },
+    {
+      "id": "09-10",
+      "tips": [
+        {
+          "num": "09",
+          "title": "20 ثانية تحمي الجميع",
+          "en_title": "20 Seconds That Protect Everyone",
+          "body": "غسل اليدين الصحيح يحتاج 20 ثانية على الأقل بالماء والصابون، مع فرك ما بين الأصابع وتحت الأظافر وظهر اليد. أبسط إجراء في سلامة الغذاء، وأكثرها إهمالاً.",
+          "en_body": "Proper handwashing takes at least 20 seconds with soap and water, scrubbing between fingers, under nails and the backs of hands. The simplest food safety step, and the most neglected."
+        },
+        {
+          "num": "10",
+          "title": "من الورق إلى القوائم الرقمية",
+          "en_title": "From Paper to Digital Checklists",
+          "body": "القوائم الرقمية للفحص اليومي تسجّل الوقت والموقع والصورة تلقائياً، وتمنع السجلات المملوءة لاحقاً، وتنبّه المشرف فور حدوث انحراف. أتمتة الجودة تبدأ من هنا.",
+          "en_body": "Digital daily checklists capture time, location and photos automatically, prevent back-filled records, and alert supervisors the moment something deviates. Quality automation starts here."
+        }
+      ]
+    },
+    {
+      "id": "11-12",
+      "tips": [
+        {
+          "num": "11",
+          "title": "مسببات الحساسية الرئيسية",
+          "en_title": "Major Food Allergens",
+          "body": "يعتمد الاتحاد الأوروبي قائمة من 14 مسبباً رئيسياً للحساسية، منها: الحليب، البيض، الفول السوداني، المكسرات، القمح (الجلوتين)، السمسم، الصويا، الأسماك والقشريات. التصريح الواضح على الملصق قد ينقذ حياة.",
+          "en_body": "The EU recognises 14 major allergens, including milk, eggs, peanuts, tree nuts, gluten cereals, sesame, soy, fish and crustaceans. Clear labelling can save a life."
+        },
+        {
+          "num": "12",
+          "title": "التبريد على مرحلتين",
+          "en_title": "Two-Stage Cooling",
+          "body": "الطعام المطهو يُبرّد من 60°م إلى 21°م خلال ساعتين، ثم إلى 5°م أو أقل خلال 4 ساعات إضافية. القِدر الكبير في الثلاجة لا يبرد بسرعة كافية؛ وزّعه في أوعية ضحلة.",
+          "en_body": "Cooked food should cool from 60°C to 21°C within 2 hours, then to 5°C or below within 4 more hours. A large pot in the fridge won't cool fast enough; use shallow containers."
+        }
+      ]
+    },
+    {
+      "id": "13-14",
+      "tips": [
+        {
+          "num": "13",
+          "title": "حساسات ذكية لا تنام",
+          "en_title": "Smart Sensors Never Sleep",
+          "body": "حساسات إنترنت الأشياء (IoT) في الثلاجات والمخازن ترسل الحرارة كل دقيقة، والذكاء الاصطناعي يميّز بين فتح الباب العادي والعطل الحقيقي، ويرسل تنبيهاً قبل أن يتلف المخزون.",
+          "en_body": "IoT sensors in fridges and stores report temperature every minute, and AI distinguishes a normal door opening from a real failure, alerting you before stock is lost."
+        },
+        {
+          "num": "14",
+          "title": "أرابيكا أم روبوستا؟",
+          "en_title": "Arabica or Robusta?",
+          "body": "تحتوي حبوب روبوستا على ما يقارب ضعف كمية الكافيين في أرابيكا، ونكهتها أقوى وأكثر مرارة. أما أرابيكا فأكثر نعومة وتعقيداً في النكهة، وهي الأساس في القهوة المختصة.",
+          "en_body": "Robusta has roughly twice the caffeine of Arabica, with a stronger, more bitter taste. Arabica is smoother and more complex, and forms the base of specialty coffee."
+        }
+      ]
+    },
+    {
+      "id": "15-16",
+      "tips": [
+        {
+          "num": "15",
+          "title": "الثلج غذاء أيضاً",
+          "en_title": "Ice Is Food Too",
+          "body": "الثلج يُعامل معاملة الغذاء. آلات الثلج غير المنظفة قد تحمل بكتيريا وعفناً. نظّفها وعقّمها دورياً، واستخدم مغرفة مخصصة، ولا تلمس الثلج باليد أو الكوب.",
+          "en_body": "Ice must be treated as food. Poorly cleaned ice machines can harbour bacteria and mould. Clean and sanitise them regularly, use a dedicated scoop, and never scoop with hands or glasses."
+        },
+        {
+          "num": "16",
+          "title": "CCP أم PRP؟",
+          "en_title": "CCP or PRP?",
+          "body": "برامج المتطلبات الأولية (PRPs) تضبط البيئة العامة: النظافة، الآفات، الصيانة. نقطة التحكم الحرجة (CCP) خطوة محددة إن فقدنا السيطرة عليها وقع الخطر مباشرة، مثل الطهي أو البسترة.",
+          "en_body": "Prerequisite programmes (PRPs) control the general environment: hygiene, pests, maintenance. A Critical Control Point (CCP) is a specific step where losing control directly creates a hazard, such as cooking or pasteurisation."
+        }
+      ]
+    },
+    {
+      "id": "17-18",
+      "tips": [
+        {
+          "num": "17",
+          "title": "الذكاء الاصطناعي لا يلغي المدقق",
+          "en_title": "AI Doesn't Replace the Auditor",
+          "body": "الذكاء الاصطناعي سريع في التحليل، لكنه يتعلّم من البيانات التي نعطيه إياها. بيانات ناقصة أو منحازة تعني قرارات خاطئة. القرار النهائي في سلامة الغذاء يبقى للإنسان المؤهل.",
+          "en_body": "AI analyses fast, but it learns from the data we give it. Incomplete or biased data means wrong decisions. The final food safety call stays with a qualified human."
+        },
+        {
+          "num": "18",
+          "title": "إعادة التسخين الصحيحة",
+          "en_title": "Reheating Right",
+          "body": "عند إعادة تسخين الطعام المطهو مسبقاً، يجب أن تصل الحرارة الداخلية إلى 74°م على الأقل، وتُقاس بميزان حرارة في أسمك جزء. التسخين مرة واحدة فقط، ولا تُعِد ما تبقى إلى الثلاجة.",
+          "en_body": "When reheating cooked food, the core temperature must reach at least 74°C, measured with a probe in the thickest part. Reheat once only, and don't return leftovers to the fridge."
+        }
+      ]
+    },
+    {
+      "id": "19-20",
+      "tips": [
+        {
+          "num": "19",
+          "title": "السكين الحادة أكثر أماناً",
+          "en_title": "A Sharp Knife Is Safer",
+          "body": "السكين الحادة تحتاج ضغطاً أقل وتنزلق أقل، لذلك إصاباتها أقل من السكين المثلّمة. استخدم قفازات مقاومة للقطع، وقطّع بعيداً عن جسمك، ولا تحاول التقاط سكين تسقط.",
+          "en_body": "A sharp knife needs less force and slips less, so it causes fewer injuries than a dull one. Use cut-resistant gloves, cut away from your body, and never try to catch a falling knife."
+        },
+        {
+          "num": "20",
+          "title": "النشاط المائي (aw)",
+          "en_title": "Water Activity (aw)",
+          "body": "النشاط المائي يقيس الماء المتاح للميكروبات، لا كمية الماء الكلية. معظم البكتيريا الممرضة لا تنمو تحت 0.85، ولهذا تدوم الأغذية المجففة والمملحة والمسكّرة طويلاً.",
+          "en_body": "Water activity measures the water available to microbes, not total moisture. Most pathogenic bacteria cannot grow below aw 0.85, which is why dried, salted and sugared foods last longer."
+        }
+      ]
+    },
+    {
+      "id": "21-22",
+      "tips": [
+        {
+          "num": "21",
+          "title": "لماذا؟ خمس مرات",
+          "en_title": "Why? Five Times",
+          "body": "أداة «لماذا الخمسة» (5 Whys) لتحليل السبب الجذري: اسأل «لماذا حدثت المشكلة؟» ثم اسأل لماذا عن كل إجابة، حتى تصل إلى السبب الحقيقي لا العرض الظاهر. لا تكتفِ بإصلاح العرض.",
+          "en_body": "The 5 Whys root cause tool: ask why the problem happened, then ask why again for each answer until you reach the real cause, not the visible symptom. Don't stop at fixing symptoms."
+        },
+        {
+          "num": "22",
+          "title": "الذكاء الاصطناعي يقرأ آلاف الشكاوى",
+          "en_title": "AI Reads Thousands of Complaints",
+          "body": "تقنيات معالجة اللغة الطبيعية (NLP) تقرأ آلاف تعليقات العملاء والشكاوى، وتصنّفها حسب الموضوع والفرع ودرجة الخطورة في دقائق. ما كان يأخذ أسبوعاً من فريق الجودة صار يأخذ دقائق.",
+          "en_body": "Natural language processing (NLP) reads thousands of customer reviews and complaints and sorts them by topic, branch and severity in minutes. A week of quality team work becomes minutes."
+        }
+      ]
+    },
+    {
+      "id": "23-24",
+      "tips": [
+        {
+          "num": "23",
+          "title": "معادلة الإسبريسو",
+          "en_title": "The Espresso Equation",
+          "body": "إسبريسو متوازن يحتاج تقريباً 18 إلى 20 غراماً من البن، وزمن استخلاص بين 25 و30 ثانية. أسرع من ذلك يعني طعماً حامضاً، وأبطأ يعني مرارة. اضبط الطحنة قبل أي شيء آخر.",
+          "en_body": "A balanced espresso typically uses about 18–20 g of coffee and a 25–30 second extraction. Faster tastes sour; slower tastes bitter. Adjust the grind before anything else."
+        },
+        {
+          "num": "24",
+          "title": "علامات وجود الآفات",
+          "en_title": "Signs of Pests",
+          "body": "فضلات صغيرة، عبوات مقضومة، روائح غريبة، آثار دهنية على الجدران، أو حشرات ميتة قرب مصادر الضوء. أي علامة منها تعني ضرورة الإبلاغ والتفتيش فوراً، لا الانتظار.",
+          "en_body": "Droppings, gnawed packaging, unusual odours, grease marks along walls, or dead insects near lights. Any of these means report and inspect immediately, don't wait."
+        }
+      ]
+    },
+    {
+      "id": "25-26",
+      "tips": [
+        {
+          "num": "25",
+          "title": "معايرة ميزان الحرارة",
+          "en_title": "Calibrate Your Thermometer",
+          "body": "اختبار بسيط: ضع المجس في كوب ماء مع ثلج مجروش لمدة دقيقة، يجب أن يقرأ 0°م. أي فرق يعني ضرورة المعايرة. ميزان غير دقيق يعني قرارات غير دقيقة.",
+          "en_body": "Simple ice-point test: place the probe in iced water for a minute; it should read 0°C. Any difference means it needs calibration. An inaccurate thermometer means inaccurate decisions."
+        },
+        {
+          "num": "26",
+          "title": "لوحة مؤشرات لحظية",
+          "en_title": "Real-Time Quality Dashboards",
+          "body": "لوحات مؤشرات الجودة الرقمية (Dashboards) تجمع نتائج الفحوص والشكاوى والحرارة في شاشة واحدة لحظياً. الإدارة ترى المشكلة اليوم، لا في تقرير آخر الشهر.",
+          "en_body": "Digital quality dashboards bring inspections, complaints and temperatures onto one live screen. Management sees the problem today, not in an end-of-month report."
+        }
+      ]
+    },
+    {
+      "id": "27-28",
+      "tips": [
+        {
+          "num": "27",
+          "title": "الليستيريا لا تخاف البرد",
+          "en_title": "Listeria Isn't Afraid of the Cold",
+          "body": "بكتيريا الليستيريا تستطيع النمو ببطء حتى في درجات حرارة الثلاجة. لذلك لا تكفي الثلاجة وحدها للأغذية الجاهزة للأكل؛ التزم بمدة الصلاحية والنظافة الصارمة للأسطح.",
+          "en_body": "Listeria can grow slowly even at refrigerator temperatures. Refrigeration alone isn't enough for ready-to-eat foods; respect shelf life and keep surfaces strictly clean."
+        },
+        {
+          "num": "28",
+          "title": "بطاقة بيانات السلامة (SDS)",
+          "en_title": "Safety Data Sheets (SDS)",
+          "body": "لكل مادة كيميائية في المصنع أو المطبخ بطاقة بيانات سلامة توضح مخاطرها وطريقة استخدامها والإسعاف الأولي. احفظها قريبة، ودرّب الموظفين عليها، والبس معدات الوقاية المناسبة.",
+          "en_body": "Every chemical in a plant or kitchen has a Safety Data Sheet describing hazards, safe use and first aid. Keep them close, train staff on them, and wear the right PPE."
+        }
+      ]
+    },
+    {
+      "id": "29-30",
+      "tips": [
+        {
+          "num": "29",
+          "title": "كاميرا تراقب الالتزام",
+          "en_title": "Cameras That Check Compliance",
+          "body": "أنظمة الرؤية بالذكاء الاصطناعي يمكنها رصد غطاء الشعر والقفازات والكمامات وغسل اليدين في مناطق التحضير، وتنبيه المشرف فوراً. الهدف ليس المراقبة، بل بناء عادة الالتزام.",
+          "en_body": "AI vision systems can detect hairnets, gloves, masks and handwashing in prep areas and alert supervisors instantly. The goal isn't surveillance, it's building a habit of compliance."
+        },
+        {
+          "num": "30",
+          "title": "إذابة التجميد بأمان",
+          "en_title": "Thawing Safely",
+          "body": "ثلاث طرق آمنة: في الثلاجة، أو تحت ماء بارد جارٍ، أو في الميكروويف مع الطهي فوراً. أما ترك اللحوم على الطاولة في حرارة الغرفة فيضع سطحها في منطقة الخطر لساعات.",
+          "en_body": "Three safe methods: in the fridge, under cold running water, or in the microwave followed by immediate cooking. Leaving meat on the counter keeps its surface in the danger zone for hours."
+        }
+      ]
+    },
+    {
+      "id": "31-32",
+      "tips": [
+        {
+          "num": "31",
+          "title": "كيف تحفظ البن؟",
+          "en_title": "How to Store Coffee",
+          "body": "أعداء البن أربعة: الهواء والضوء والحرارة والرطوبة. احفظه في عبوة محكمة معتمة بعيداً عن الحرارة، ويُفضّل استهلاكه خلال أسابيع قليلة من التحميص، واطحنه قبل التحضير مباشرة.",
+          "en_body": "Coffee has four enemies: air, light, heat and moisture. Store it airtight and opaque, away from heat, use it within a few weeks of roasting, and grind just before brewing."
+        },
+        {
+          "num": "32",
+          "title": "خطوة للأمام وخطوة للخلف",
+          "en_title": "One Step Back, One Step Forward",
+          "body": "مبدأ التتبع (Traceability): يجب أن تعرف من أين جاءت كل مادة خام (خطوة للخلف) وإلى أين ذهب كل منتج (خطوة للأمام). هذا ما يجعل الاستدعاء سريعاً ودقيقاً عند الحاجة.",
+          "en_body": "Traceability means knowing where every raw material came from (one step back) and where every product went (one step forward). That's what makes a recall fast and precise."
+        }
+      ]
+    },
+    {
+      "id": "33-34",
+      "tips": [
+        {
+          "num": "33",
+          "title": "الذكاء الاصطناعي يكتب، وأنت تراجع",
+          "en_title": "AI Drafts, You Review",
+          "body": "أدوات الذكاء الاصطناعي التوليدي تكتب مسودة إجراء تشغيل قياسي (SOP) أو تقرير خلال دقائق. لكن المراجعة الفنية من خبير الجودة إلزامية، لأن خطأً صغيراً في إجراء قد يصبح خطراً كبيراً.",
+          "en_body": "Generative AI can draft an SOP or report in minutes. But technical review by a quality expert is essential, because a small error in a procedure can become a big hazard."
+        },
+        {
+          "num": "34",
+          "title": "الأغشية الحيوية (Biofilms)",
+          "en_title": "Biofilms",
+          "body": "البكتيريا قد تتجمع في طبقة لزجة على الأسطح والأنابيب يصعب إزالتها، وتحميها من المطهرات. الحل: تنظيف ميكانيكي بالفرك قبل التطهير، وتصميم معدات سهلة التفكيك والتنظيف.",
+          "en_body": "Bacteria can form a sticky layer on surfaces and pipes that resists sanitisers. The fix: mechanical scrubbing before sanitising, and equipment designed to be easy to dismantle and clean."
+        }
+      ]
+    },
+    {
+      "id": "35-36",
+      "tips": [
+        {
+          "num": "35",
+          "title": "التحقق أم المصادقة؟",
+          "en_title": "Validation vs Verification",
+          "body": "المصادقة (Validation): هل خطة HACCP قادرة علمياً على ضبط الخطر؟ التحقق (Verification): هل ننفّذ الخطة فعلاً كما كُتبت؟ الأولى تسأل «هل الخطة صحيحة؟» والثانية «هل نطبّقها؟».",
+          "en_body": "Validation: can the HACCP plan scientifically control the hazard? Verification: are we actually following the plan as written? One asks 'is the plan right?', the other 'are we doing it?'."
+        },
+        {
+          "num": "36",
+          "title": "الرطوبة تصنع السموم",
+          "en_title": "Moisture Breeds Toxins",
+          "body": "سموم فطرية مثل الأفلاتوكسين تتكون عندما تُخزّن الحبوب والمكسرات في رطوبة وحرارة عالية. وهي لا تزول بالطهي. الوقاية في التجفيف الجيد والتخزين الجاف والفحص المخبري.",
+          "en_body": "Mycotoxins like aflatoxin form when grains and nuts are stored in high humidity and heat, and cooking does not destroy them. Prevention lies in proper drying, dry storage and lab testing."
+        }
+      ]
+    },
+    {
+      "id": "37-38",
+      "tips": [
+        {
+          "num": "37",
+          "title": "ارفع بركبتيك لا بظهرك",
+          "en_title": "Lift With Your Legs, Not Your Back",
+          "body": "عند رفع الصناديق الثقيلة: قرّب الحمل من جسمك، اثنِ ركبتيك، حافظ على ظهرك مستقيماً، ولا تلتف أثناء الحمل. واطلب المساعدة أو استخدم عربة عندما يكون الحمل ثقيلاً.",
+          "en_body": "When lifting heavy boxes: keep the load close, bend your knees, keep your back straight, and don't twist while carrying. Ask for help or use a trolley for heavy loads."
+        },
+        {
+          "num": "38",
+          "title": "الصيانة التنبؤية",
+          "en_title": "Predictive Maintenance",
+          "body": "الذكاء الاصطناعي يحلل اهتزاز المعدات وحرارتها واستهلاكها للطاقة، ويتوقع العطل قبل حدوثه. معدات لا تتعطل فجأة تعني منتجاً ثابت الجودة وهدراً أقل.",
+          "en_body": "AI analyses equipment vibration, temperature and energy use to predict failures before they happen. Equipment that doesn't break down suddenly means consistent quality and less waste."
+        }
+      ]
+    },
+    {
+      "id": "39",
+      "tips": [
+        {
+          "num": "39",
+          "title": "الجودة مسؤولية الجميع",
+          "en_title": "Quality Is Everyone's Job",
+          "body": "قسم الجودة لا يصنع الجودة وحده. الجودة يصنعها عامل الاستلام، والطاهي، والكاشير، والسائق. ثقافة الجودة تعني أن يتصرف كل شخص بشكل صحيح حتى عندما لا يراقبه أحد.",
+          "en_body": "The quality department doesn't create quality alone. It's made by the receiver, the cook, the cashier and the driver. Quality culture means doing it right even when no one is watching."
         }
       ]
     }
