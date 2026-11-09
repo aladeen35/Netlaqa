@@ -1,4 +1,116 @@
 {
+ "01": {
+  "title": "20120106-OC-AMW-0073",
+  "creator": "USDAgov",
+  "license": "pdm",
+  "source": "flickr",
+  "page": "https://www.flickr.com/photos/41284017@N08/7008315173"
+ },
+ "02": {
+  "title": "U.S. Department of Agriculture (USDA)",
+  "creator": "U.S. Department of Agriculture",
+  "license": "cc0",
+  "source": "rawpixel",
+  "page": "https://www.rawpixel.com/image/3259544/free-photo-image-industry-factory-manufacturing"
+ },
+ "03": {
+  "title": "CBP Agriculture Specialist Conducts Pepper",
+  "creator": null,
+  "license": "cc0",
+  "source": "rawpixel",
+  "page": "https://www.rawpixel.com/image/8738719/photo-image-border-public-domain-food"
+ },
+ "04": {
+  "title": "20150916-OSEC-LSC-0190",
+  "creator": "USDAgov",
+  "license": "pdm",
+  "source": "flickr",
+  "page": "https://www.flickr.com/photos/41284017@N08/21452606110"
+ },
+ "05": {
+  "title": "Pour Over",
+  "creator": "Kristin Hardwick",
+  "license": "cc0",
+  "source": "stocksnap",
+  "page": "https://stocksnap.io/photo/pour-over-UE2INO4TXK"
+ },
+ "06": {
+  "title": "Housing improvement project goal 1: two-bedroom unit, kitchen",
+  "creator": "YellowstoneNPS",
+  "license": "pdm",
+  "source": "flickr",
+  "page": "https://www.flickr.com/photos/80223459@N05/52067013963"
+ },
+ "07": {
+  "title": "Cuttingboard Knife",
+  "creator": "Krzysztof%20Puszczy%u0144ski",
+  "license": "cc0",
+  "source": "stocksnap",
+  "page": "https://stocksnap.io/photo/cuttingboard-knife-LCJJH18ZNI"
+ },
+ "08": {
+  "title": "Soda Hall abacus with laptop and smartphone - closeup",
+  "creator": "D Coetzee",
+  "license": "cc0",
+  "source": "flickr",
+  "page": "https://www.flickr.com/photos/29507259@N02/6773901135"
+ },
+ "09": {
+  "title": "School Nutrition Professional washing hands",
+  "creator": "U.S. Department of Agriculture",
+  "license": "cc0",
+  "source": "rawpixel",
+  "page": "https://www.rawpixel.com/image/8735118/photo-image-public-domain"
+ },
+ "10": {
+  "title": "Checklist Goals",
+  "creator": "Glenn Carstens-Peters",
+  "license": "cc0",
+  "source": "stocksnap",
+  "page": "https://stocksnap.io/photo/checklist-goals-TBJ9OPDGMK"
+ },
+ "11": {
+  "title": "U.S. Department of Agriculture (USDA)",
+  "creator": "U.S. Department of Agriculture",
+  "license": "cc0",
+  "source": "rawpixel",
+  "page": "https://www.rawpixel.com/image/3259568/free-photo-image-organic-food-factory-farm"
+ },
+ "12": {
+  "title": "Last Veggie Soup",
+  "creator": "cogdogblog",
+  "license": "cc0",
+  "source": "flickr",
+  "page": "https://www.flickr.com/photos/37996646802@N01/2936442899"
+ },
+ "13": {
+  "title": "20120106-OC-AMW-0077",
+  "creator": "USDAgov",
+  "license": "pdm",
+  "source": "flickr",
+  "page": "https://www.flickr.com/photos/41284017@N08/6862201398"
+ },
+ "14": {
+  "title": "Coffee Beans Texture",
+  "creator": "megforce1",
+  "license": "cc0",
+  "source": "flickr",
+  "page": "https://www.flickr.com/photos/35608308@N05/22257623231"
+ },
+ "15": {
+  "title": "Drink in Glass with Ice Cubes and Straw",
+  "creator": "Image Catalog",
+  "license": "cc0",
+  "source": "flickr",
+  "page": "https://www.flickr.com/photos/132795455@N08/18218093141"
+ },
+ "16": {
+  "title": "U.S. Department of Agriculture (USDA)",
+  "creator": "U.S. Department of Agriculture",
+  "license": "cc0",
+  "source": "rawpixel",
+  "page": "https://www.rawpixel.com/image/3306693/free-photo-image-conveyor-belt-food-factory-manufacturing"
+ },
  "17": {
   "title": "Robot Technology",
   "creator": "Alex Knight",
@@ -12,5 +124,152 @@
   "license": "cc0",
   "source": "rawpixel",
   "page": "https://www.rawpixel.com/image/5925978/photo-image-background-public-domain-food"
+ },
+ "19": {
+  "title": "Redpeppers Vegetables",
+  "creator": "Skitter Photo",
+  "license": "cc0",
+  "source": "stocksnap",
+  "page": "https://stocksnap.io/photo/redpeppers-vegetables-76667A2B18"
+ },
+ "20": {
+  "title": "A glass bowl filled with bright orange dried apricots is in focus at a buffet, with more dried fruits and cheeses in the background.",
+  "creator": "Faisal Ahammad",
+  "license": "cc0",
+  "source": "wordpress",
+  "page": "https://wordpress.org/photos/photo/72968ca5b8/"
+ },
+ "21": {
+  "title": "Capitol Hill Question Mark (Washington, DC)",
+  "creator": "takomabibelot",
+  "license": "cc0",
+  "source": "flickr",
+  "page": "https://www.flickr.com/photos/38782010@N00/4373062612"
+ },
+ "22": {
+  "title": "Using a Smartphone",
+  "creator": "Image Catalog",
+  "license": "cc0",
+  "source": "flickr",
+  "page": "https://www.flickr.com/photos/132795455@N08/22526174288"
+ },
+ "23": {
+  "title": "Espresso Coffee",
+  "creator": "Blake Verdoorn",
+  "license": "cc0",
+  "source": "stocksnap",
+  "page": "https://stocksnap.io/photo/espresso-coffee-RKVW9F72PL"
+ },
+ "24": {
+  "title": "White-footed Mouse, _2016-03-08-11.46",
+  "creator": "Sam Droege",
+  "license": "pdm",
+  "source": "flickr",
+  "page": "https://www.flickr.com/photos/54563451@N08/25894310135"
+ },
+ "25": {
+  "title": "1974. Tom Gregg records data for three different temperature and humidity checks: hygrothermograph; sling slycrometer, and separate thermometer-hygrometer. Douglas-fir tussock moth control project.",
+  "creator": "USDA Forest Service",
+  "license": "pdm",
+  "source": "flickr",
+  "page": "https://www.flickr.com/photos/151887236@N05/35161765811"
+ },
+ "26": {
+  "title": "Car dashboard",
+  "creator": "freestocks.org",
+  "license": "cc0",
+  "source": "flickr",
+  "page": "https://www.flickr.com/photos/135396164@N05/22954713844"
+ },
+ "27": {
+  "title": "A dark wooden serving platter arranged with crackers, sliced deli meats, almonds, dried cranberries, a small bowl of dip, and herb-crusted cheese.",
+  "creator": "Ajith R N",
+  "license": "cc0",
+  "source": "wordpress",
+  "page": "https://wordpress.org/photos/photo/33269d7733/"
+ },
+ "28": {
+  "title": "20150320-OSEC-LSC-0106",
+  "creator": "USDAgov",
+  "license": "pdm",
+  "source": "flickr",
+  "page": "https://www.flickr.com/photos/41284017@N08/16714715557"
+ },
+ "29": {
+  "title": "FD Student Chef Team",
+  "creator": "U.S. Army",
+  "license": "cc0",
+  "source": "rawpixel",
+  "page": "https://www.rawpixel.com/image/8739012/student-chef-team"
+ },
+ "30": {
+  "title": "20120106-OC-AMW-0071",
+  "creator": "USDAgov",
+  "license": "pdm",
+  "source": "flickr",
+  "page": "https://www.flickr.com/photos/41284017@N08/6862198794"
+ },
+ "31": {
+  "title": "Coffee Beans on Table",
+  "creator": "Image Catalog",
+  "license": "cc0",
+  "source": "flickr",
+  "page": "https://www.flickr.com/photos/132795455@N08/17667957613"
+ },
+ "32": {
+  "title": "DELIVERY TRUCK FOR POCOCK & CO, AERATED WATERS, LYONS ROAD, CAMPERDOWN, SYDNEY, N.S.W. - 1915",
+  "creator": "Aussie~mobs",
+  "license": "pdm",
+  "source": "flickr",
+  "page": "https://www.flickr.com/photos/70994841@N07/40616852730"
+ },
+ "33": {
+  "title": "Laptop Typing",
+  "creator": "Kristin Hardwick",
+  "license": "cc0",
+  "source": "stocksnap",
+  "page": "https://stocksnap.io/photo/laptop-typing-MOK9SCVSIP"
+ },
+ "34": {
+  "title": "Green Flash Brewing",
+  "creator": "Daquella manera",
+  "license": "cc0",
+  "source": "flickr",
+  "page": "https://www.flickr.com/photos/62518311@N00/13074883324"
+ },
+ "35": {
+  "title": "Isotope laboratory at the National Institutes of Health",
+  "creator": "National Institutes of Health (NIH)",
+  "license": "pdm",
+  "source": "flickr",
+  "page": "https://www.flickr.com/photos/132318516@N08/40811174231"
+ },
+ "36": {
+  "title": "Free focused wheat grains image",
+  "creator": null,
+  "license": "cc0",
+  "source": "rawpixel",
+  "page": "https://www.rawpixel.com/image/5918393/image-public-domain-food-free"
+ },
+ "37": {
+  "title": "20161005-FNS-LSC-0838",
+  "creator": "USDAgov",
+  "license": "pdm",
+  "source": "flickr",
+  "page": "https://www.flickr.com/photos/41284017@N08/30476527892"
+ },
+ "38": {
+  "title": "20200305-FNS-DCK-0088",
+  "creator": "USDAgov",
+  "license": "pdm",
+  "source": "flickr",
+  "page": "https://www.flickr.com/photos/41284017@N08/49624908928"
+ },
+ "39": {
+  "title": "FD Student Chef Team",
+  "creator": "U.S. Army",
+  "license": "cc0",
+  "source": "rawpixel",
+  "page": "https://www.rawpixel.com/image/8738927/student-chef-team"
  }
 }
