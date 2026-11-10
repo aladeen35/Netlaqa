@@ -8,3 +8,5 @@ vertical/output/
 vertical/output_en/
 vertical/candidates/
 vertical/fetch2.log
+explainers/*/voice/
+explainers/*/out/
