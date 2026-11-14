@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<style>
+@font-face { font-family: Cairo; font-weight: 700; src: url(../assets/fonts/cairo-arabic-700-normal.woff2) format('woff2'); unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0898-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC; }
+@font-face { font-family: Cairo; font-weight: 900; src: url(../assets/fonts/cairo-arabic-900-normal.woff2) format('woff2'); unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0898-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC; }
+@font-face { font-family: Cairo; font-weight: 700; src: url(../assets/fonts/cairo-latin-700-normal.woff2) format('woff2'); }
+@font-face { font-family: Cairo; font-weight: 900; src: url(../assets/fonts/cairo-latin-900-normal.woff2) format('woff2'); }
+html, body { margin: 0; background: #FFF8ED; overflow: hidden; }
+canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script src="data.js"></script>
+<script>
+// ---------- setup ----------
+const SCALE = +(new URLSearchParams(location.search).get('scale') || 1);
+const W = 1080, H = 1920;
+const cv = document.getElementById('c');
+cv.width = Math.round(W * SCALE); cv.height = Math.round(H * SCALE);
+const ctx = cv.getContext('2d');
+const C = { bg: '#FFF8ED', ink: '#18202A', or: '#FF6B35', tq: '#2EC4B6', ye: '#FFD166', white: '#FFFFFF' };
+const logo = new Image(); logo.src = '../assets/images/logo_source.png';
+
+// ---------- math ----------
+const cl = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const p = (t, a, b) => cl((t - a) / (b - a));
+const eo = (x) => 1 - Math.pow(1 - x, 3);
+const ei = (x) => x * x * x;
+const eio = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const back = (x, s = 1.3) => { if (x <= 0) return 0; if (x >= 1) return 1; const y = x - 1; return 1 + (s + 1) * y * y * y + s * y * y; }; // ≈6% overshoot
+const lerp = (a, b, k) => a + (b - a) * k;
+function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
+
+// ---------- timeline (locked to the real VO in data.js) ----------
+const B = window.BEATS;
+const norm = (s) => s.replace(/[ً-ْـ.,،؟?!…:—\-]/g, '').replace(/[أإآ]/g, 'ا').trim();
+function wt(seg, key, frac) { // time of a spoken word (whisper), fallback = fraction of the segment
+  const S = B[seg]; const k = norm(key);
+  const core = (x) => norm(x).replace(/^و?ال/, '');
+  const hit = (S.words || []).find((w) => norm(w.w).includes(k)) || (S.words || []).find((w) => core(k).length >= 3 && core(w.w).includes(core(k).slice(0, 4)));
+  return hit ? hit.s : S.start + frac * (S.end - S.start);
+}
+const T1 = 1.8;
+const T2 = B.S2.start - 0.25, T3 = B.S3.start - 0.3, T4 = B.S4.start - 0.3, T5 = B.S5.start - 0.3;
+const T6 = B.S6.start - 0.2, T7 = B.S7.start - 0.35, END = 45;
+const K = {
+  s1a: B.S1.start + 0.05, s1b: wt('S1', 'عالقة', 0.55),
+  s2a: wt('S2', 'الطريق', 0.55),
+  s3a: wt('S3', 'جملة', 0.35), s3aud: wt('S3', 'جمهور', 0.6), s3feel: wt('S3', 'يشعر', 0.85),
+  s4a: wt('S4', 'سكربت', 0.42), s4b: wt('S4', 'مشاهد', 0.62),
+  s5a: wt('S5', 'ادوات', 0.35), s5v: wt('S5', 'الصوت', 0.68), s5m: wt('S5', 'الحركة', 0.8), s5e: wt('S5', 'المونتاج', 0.9),
+  s6a: wt('S6', 'فكرتك', 0.45),
+};
+// SFX cues (read by render.js → audio mix)
+const CUES = [];
+const cue = (t, name, gain = 1) => CUES.push({ t: +t.toFixed(3), name, gain });
+cue(0.0, 'logo_swoosh', 0.7); cue(0.88, 'pop', 0.9);
+cue(T1, 'whoosh', 0.55);
+const P_STUCK = 0.85, TB = T1 + 0.55;
+for (let k = 1; TB + k * P_STUCK < T2 - 0.1; k++) cue(TB + k * P_STUCK, 'soft_impact', 0.45);
+cue(T2, 'whoosh', 0.5);
+[0.35, 0.75, 1.15].forEach((d) => cue(B.S2.start + d + 0.6, 'pop_light', 0.6));
+cue(T3, 'whoosh', 0.55); cue(T3 + 0.15, 'pop', 0.7); cue(K.s3aud, 'pop_light', 0.6); cue(K.s3feel, 'pop_light', 0.6);
+cue(T4, 'whoosh', 0.55); cue(K.s4b, 'pop', 0.6); cue(K.s4b + 0.05, 'pop_light', 0.5); cue(K.s4b + 0.1, 'pop_light', 0.5);
+cue(T5, 'whoosh', 0.55); cue(K.s5v, 'pop', 0.6); cue(K.s5m, 'pop', 0.6); cue(K.s5e, 'pop', 0.6);
+cue(T6, 'soft_impact', 0.7); cue(T6 + 0.05, 'pop', 0.7); cue(T6 + 0.75, 'soft_impact', 0.4);
+cue(T7, 'whoosh', 0.5); cue(T7 + 0.35, 'pop', 0.9);
+window.CUES = CUES;
+
+// ---------- drawing primitives ----------
+function rr(x, y, w, h, r) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); }
+function withT(x, y, s, rot, fn, alpha = 1) {
+  if (s <= 0.001 || alpha <= 0.001) return;
+  ctx.save(); ctx.translate(x, y); ctx.rotate(rot || 0); ctx.scale(s, s); ctx.globalAlpha *= alpha; fn(); ctx.restore();
+}
+function text(str, x, y, size, color, weight = 900) {
+  ctx.font = `${weight} ${size}px Cairo`; ctx.fillStyle = color; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.direction = 'rtl'; ctx.fillText(str, x, y);
+}
+// words = [{w, t, c}] laid out right→left, each pops in with a 50 ms stagger floor
+function caption(t, words, cx, cy, size, tEnd) {
+  ctx.font = `900 ${size}px Cairo`; ctx.direction = 'rtl';
+  const gap = size * 0.28; const ws = words.map((w) => ctx.measureText(w.w).width);
+  let x = cx + (ws.reduce((a, b) => a + b, 0) + gap * (words.length - 1)) / 2;
+  const out = tEnd ? 1 - ei(p(t, tEnd - 0.2, tEnd)) : 1;
+  words.forEach((w, i) => {
+    const t0 = w.t + i * 0.05; const k = p(t, t0, t0 + 0.28);
+    const wx = x - ws[i] / 2; x -= ws[i] + gap;
+    if (k <= 0) return;
+    withT(wx, cy + 22 * (1 - eo(k)), lerp(0.6, 1, back(k)), 0, () => text(w.w, 0, 0, size, w.c || C.ink), eo(k) * out);
+  });
+}
+// stickman: (x, y) = hip. angles: 0 = straight down, + = toward +x
+function limb(x, y, a1, a2, len) {
+  const x1 = x + Math.sin(a1) * len, y1 = y + Math.cos(a1) * len;
+  const x2 = x1 + Math.sin(a1 + a2) * len, y2 = y1 + Math.cos(a1 + a2) * len;
+  ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+}
+function stick(x, y, o = {}) {
+  const s = o.s || 1.1, lean = o.lean || 0;
+  ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
+  ctx.strokeStyle = C.ink; ctx.lineWidth = 15; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  // legs
+  limb(0, 0, o.legL ?? -0.32, o.kneeL ?? 0.12, 80); limb(0, 0, o.legR ?? 0.32, o.kneeR ?? -0.12, 80);
+  // torso
+  const nx = Math.sin(lean) * 165, ny = -Math.cos(lean) * 165;
+  ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(nx, ny); ctx.stroke();
+  const sx = nx * 0.85, sy = ny * 0.85;
+  limb(sx, sy, o.armL ?? -0.45, o.elbowL ?? 0.3, 66); limb(sx, sy, o.armR ?? 0.45, o.elbowR ?? -0.3, 66);
+  // head
+  const hx = nx + Math.sin(lean) * 56, hy = ny - Math.cos(lean) * 56;
+  ctx.save(); ctx.translate(hx, hy); ctx.rotate(lean + (o.tilt || 0));
+  ctx.fillStyle = C.bg; ctx.beginPath(); ctx.arc(0, 0, 52, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = C.ink; const lx = o.look || 0;
+  const blink = o.blink ? 0.15 : 1;
+  ctx.beginPath(); ctx.ellipse(-17 + lx, -8, 6, 8 * blink, 0, 0, Math.PI * 2); ctx.ellipse(17 + lx, -8, 6, 8 * blink, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.lineWidth = 7; ctx.beginPath();
+  if (o.face === 'wow') { ctx.ellipse(lx, 20, 9, 12, 0, 0, Math.PI * 2); ctx.stroke(); }
+  else if (o.face === 'think') { ctx.moveTo(-14 + lx, 22); ctx.quadraticCurveTo(lx, 16, 14 + lx, 24); ctx.stroke(); }
+  else { ctx.arc(lx, 10, 20, 0.2 * Math.PI, 0.8 * Math.PI); ctx.stroke(); }
+  if (o.cheeks) { ctx.fillStyle = C.or; ctx.globalAlpha = 0.35; ctx.beginPath(); ctx.arc(-30, 14, 9, 0, 7); ctx.arc(30, 14, 9, 0, 7); ctx.fill(); }
+  ctx.restore(); ctx.restore();
+}
+function bulb(glow = 1) {
+  if (glow > 0) { const g = ctx.createRadialGradient(0, -10, 10, 0, -10, 120); g.addColorStop(0, `rgba(255,209,102,${0.75 * glow})`); g.addColorStop(1, 'rgba(255,209,102,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, -10, 120, 0, 7); ctx.fill(); }
+  ctx.lineWidth = 9; ctx.strokeStyle = C.ink; ctx.fillStyle = C.or;
+  ctx.beginPath(); ctx.arc(0, -18, 46, Math.PI * 0.78, Math.PI * 2.22); ctx.lineTo(20, 38); ctx.lineTo(-20, 38); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = C.ink; rr(-22, 42, 44, 10, 4); ctx.fill(); rr(-18, 56, 36, 10, 4); ctx.fill();
+  ctx.strokeStyle = C.white; ctx.lineWidth = 7; ctx.lineCap = 'round'; ctx.beginPath(); ctx.arc(0, -18, 28, Math.PI * 1.15, Math.PI * 1.5); ctx.stroke();
+}
+function thought(w, h, wob = 0) { // bubble centred at 0,0 with tail circles toward +y
+  ctx.fillStyle = C.white; ctx.strokeStyle = C.ink; ctx.lineWidth = 10;
+  ctx.beginPath(); ctx.ellipse(0, 0, w / 2 + wob, h / 2 - wob * 0.6, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  [[w * 0.12, h * 0.62, 22], [w * 0.2, h * 0.8, 13]].forEach(([x, y, r]) => { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); ctx.stroke(); });
+}
+function card(w, h, band, label) {
+  ctx.fillStyle = 'rgba(24,32,42,0.12)'; rr(-w / 2 + 10, -h / 2 + 14, w, h, 28); ctx.fill();
+  ctx.fillStyle = C.white; ctx.strokeStyle = C.ink; ctx.lineWidth = 9; rr(-w / 2, -h / 2, w, h, 28); ctx.fill();
+  ctx.save(); ctx.clip(); ctx.fillStyle = band; ctx.fillRect(-w / 2, -h / 2, w, 92); ctx.restore();
+  rr(-w / 2, -h / 2, w, h, 28); ctx.stroke();
+  if (label) text(label, 0, -h / 2 + 48, 50, C.ink);
+}
+function pill(label, color, size = 50) {
+  ctx.font = `900 ${size}px Cairo`; const w = ctx.measureText(label).width + size * 1.4, h = size * 1.75;
+  ctx.fillStyle = 'rgba(24,32,42,0.15)'; rr(-w / 2 + 6, -h / 2 + 8, w, h, h / 2); ctx.fill();
+  ctx.fillStyle = color; ctx.strokeStyle = C.ink; ctx.lineWidth = 8; rr(-w / 2, -h / 2, w, h, h / 2); ctx.fill(); ctx.stroke();
+  text(label, 0, 3, size, C.ink);
+}
+function logoDisc(r) { // real logo on its own black ground, clipped to a disc
+  ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r, 0, 7); ctx.clip();
+  ctx.fillStyle = '#0B0B0B'; ctx.fillRect(-r, -r, 2 * r, 2 * r);
+  if (logo.complete && logo.naturalWidth) ctx.drawImage(logo, -r, -r, 2 * r, 2 * r);
+  ctx.restore();
+}
+function miniPanel(kind) {
+  ctx.fillStyle = C.white; ctx.strokeStyle = C.ink; ctx.lineWidth = 8; rr(-115, -85, 230, 170, 20); ctx.fill(); ctx.stroke();
+  if (kind === 0) withT(0, 8, 0.75, 0, () => bulb(0.6));
+  if (kind === 1) { withT(0, 40, 0.38, 0, () => stick(0, 0, { armL: -2.3, armR: 2.3, elbowL: 0, elbowR: 0 })); }
+  if (kind === 2) { ctx.fillStyle = C.tq; ctx.beginPath(); ctx.moveTo(-30, -42); ctx.lineTo(48, 0); ctx.lineTo(-30, 42); ctx.closePath(); ctx.fill(); ctx.stroke(); }
+  ctx.fillStyle = C.or; ctx.beginPath(); ctx.arc(-88, -58, 14, 0, 7); ctx.fill();
+  text(['١', '٢', '٣'][kind], -88, -56, 22, C.white);
+}
+function screen(t, w, h, playing) {
+  ctx.fillStyle = 'rgba(24,32,42,0.14)'; rr(-w / 2 + 12, -h / 2 + 16, w, h, 32); ctx.fill();
+  ctx.fillStyle = C.white; ctx.strokeStyle = C.ink; ctx.lineWidth = 11; rr(-w / 2, -h / 2, w, h, 32); ctx.fill();
+  ctx.save(); ctx.clip(); ctx.fillStyle = C.tq; ctx.fillRect(-w / 2, -h / 2, w, 64);
+  ctx.fillStyle = C.white; [0, 1, 2].forEach((i) => { ctx.beginPath(); ctx.arc(w / 2 - 44 - i * 36, -h / 2 + 32, 10, 0, 7); ctx.fill(); });
+  if (playing > 0) { // mini stick walking inside the video
+    const u = (t * 0.9) % 1; const x = lerp(-w / 2 - 60, w / 2 + 60, u); const ph = t * 9;
+    withT(x, h / 2 - 105, 0.5, 0, () => stick(0, 0, { legL: Math.sin(ph) * 0.5, legR: -Math.sin(ph) * 0.5, armL: -Math.sin(ph) * 0.5, armR: Math.sin(ph) * 0.5 }), playing);
+    ctx.fillStyle = C.ink; ctx.globalAlpha = 0.15 * playing; ctx.fillRect(-w / 2, h / 2 - 50, w, 4); ctx.globalAlpha = 1;
+  }
+  ctx.restore(); rr(-w / 2, -h / 2, w, h, 32); ctx.stroke();
+  // progress line
+  ctx.fillStyle = 'rgba(24,32,42,0.15)'; rr(-w / 2 + 40, h / 2 - 34, w - 80, 10, 5); ctx.fill();
+  if (playing > 0) { ctx.fillStyle = C.or; rr(-w / 2 + 40, h / 2 - 34, (w - 80) * cl(playing * ((t * 0.25) % 1 + 0.05)), 10, 5); ctx.fill(); }
+}
+function playBtn(r, col) {
+  ctx.fillStyle = col; ctx.strokeStyle = C.ink; ctx.lineWidth = 9; ctx.beginPath(); ctx.arc(0, 0, r, 0, 7); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = C.ink; ctx.beginPath(); ctx.moveTo(-r * 0.3, -r * 0.42); ctx.lineTo(r * 0.48, 0); ctx.lineTo(-r * 0.3, r * 0.42); ctx.closePath(); ctx.fill();
+}
+function people() { [-38, 38, 0].forEach((dx, i) => { const y = i === 2 ? 6 : -10; ctx.fillStyle = i === 2 ? C.tq : '#8FDCD5'; ctx.strokeStyle = C.ink; ctx.lineWidth = 7; ctx.beginPath(); ctx.arc(dx, y - 30, 24, 0, 7); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.arc(dx, y + 34, 40, Math.PI, 0); ctx.closePath(); ctx.fill(); ctx.stroke(); }); }
+function heart() { ctx.fillStyle = C.or; ctx.strokeStyle = C.ink; ctx.lineWidth = 8; ctx.beginPath(); ctx.moveTo(0, 40); ctx.bezierCurveTo(-70, -5, -45, -62, 0, -28); ctx.bezierCurveTo(45, -62, 70, -5, 0, 40); ctx.fill(); ctx.stroke(); }
+function qmark(k) { withT(0, 0, back(k), 0, () => { ctx.fillStyle = C.ye; ctx.strokeStyle = C.ink; ctx.lineWidth = 7; ctx.beginPath(); ctx.arc(0, 0, 44, 0, 7); ctx.fill(); ctx.stroke(); text('؟', 0, 4, 64, C.ink); }, eo(k)); }
+
+// ---------- progress rail (فكرة → تخطيط → فيديو, right to left) ----------
+function rail(t) {
+  const a = eo(p(t, T3, T3 + 0.5)); if (a <= 0) return;
+  const y = 300, xs = [790, 540, 290], labels = ['فكرة', 'تخطيط', 'فيديو'];
+  const starts = [T3, T4, T5]; const allDone = t >= T6;
+  ctx.save(); ctx.globalAlpha = a; ctx.translate(0, -40 * (1 - a));
+  for (let i = 0; i < 2; i++) {
+    ctx.strokeStyle = 'rgba(24,32,42,0.2)'; ctx.lineWidth = 10; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(xs[i] - 50, y); ctx.lineTo(xs[i + 1] + 50, y); ctx.stroke();
+    const f = eio(p(t, starts[i + 1] - 0.1, starts[i + 1] + 0.4));
+    if (f > 0) { ctx.strokeStyle = allDone ? C.ye : C.tq; ctx.beginPath(); ctx.moveTo(xs[i] - 50, y); ctx.lineTo(lerp(xs[i] - 50, xs[i + 1] + 50, f), y); ctx.stroke(); }
+  }
+  xs.forEach((x, i) => {
+    const active = t >= starts[i] && (i === 2 ? t < T6 : t < starts[i + 1]); const done = allDone || (i < 2 && t >= starts[i + 1]);
+    const pop = back(p(t, starts[i], starts[i] + 0.35)); const pulse = active ? 1 + 0.06 * Math.sin((t - starts[i]) * 6) : 1;
+    const col = allDone ? C.ye : done ? C.tq : active ? C.or : C.bg;
+    withT(x, y, (t >= starts[i] ? lerp(1, 1.18, pop) - 0.18 * (pop >= 1 ? 1 : 0) : 1) * pulse, 0, () => {
+      ctx.fillStyle = col; ctx.strokeStyle = C.ink; ctx.lineWidth = 8; ctx.beginPath(); ctx.arc(0, 0, 40, 0, 7); ctx.fill(); ctx.stroke();
+      if (done) { ctx.strokeStyle = C.ink; ctx.lineWidth = 9; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-16, 2); ctx.lineTo(-4, 14); ctx.lineTo(18, -12); ctx.stroke(); }
+      else text(['١', '٢', '٣'][i], 0, 3, 40, C.ink);
+    });
+    text(labels[i], x, y + 78, 40, active || done ? C.ink : 'rgba(24,32,42,0.45)', 900);
+  });
+  ctx.restore();
+}
+
+// ---------- stick blocking (position per scene, eased between) ----------
+const STICK = [ // [time, x, y]
+  [T1, 540, 1220], [T2, 540, 1220], [T2 + 0.5, 780, 1220], [T3, 780, 1220], [T3 + 0.5, 800, 1220],
+  [T4, 800, 1220], [T4 + 0.5, 540, 1260], [T5, 540, 1260], [T5 + 0.5, 880, 1300], [T7, 880, 1300], [T7 + 0.5, 540, 1340],
+];
+function stickPos(t) {
+  for (let i = STICK.length - 1; i >= 0; i--) if (t >= STICK[i][0]) {
+    const n = STICK[i + 1]; if (!n) return [STICK[i][1], STICK[i][2]];
+    const k = eio(p(t, STICK[i][0], n[0])); return [lerp(STICK[i][1], n[1], k), lerp(STICK[i][2], n[2], k)];
+  }
+  return [STICK[0][1], STICK[0][2]];
+}
+const slideIn = (t, a) => -1150 * (1 - eo(p(t, a, a + 0.45)));
+const slideOut = (t, b) => 1150 * ei(p(t, b - 0.35, b));
+
+// ---------- frame ----------
+const confetti = (() => { const r = rng(42); return Array.from({ length: 70 }, () => ({ x: r() * 1080, vy: 500 + r() * 500, vx: (r() - 0.5) * 200, rot: r() * 6, vr: (r() - 0.5) * 10, c: [C.or, C.tq, C.ye, C.ink][Math.floor(r() * 4)], w: 14 + r() * 14, d: r() * 0.5 })); })();
+
+window.drawFrame = function (t) {
+  ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+  ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);
+  // faint dot grid
+  ctx.fillStyle = 'rgba(24,32,42,0.05)'; for (let y = 60; y < H; y += 80) for (let x = 60; x < W; x += 80) { ctx.beginPath(); ctx.arc(x, y, 3, 0, 7); ctx.fill(); }
+
+  // ===== 0 · logo intro =====
+  if (t < T1 + 0.05) {
+    const out = ei(p(t, 1.45, T1)); const r = 250;
+    ctx.save(); ctx.translate(540, 880); ctx.scale(1 - 0.4 * out, 1 - 0.4 * out); ctx.globalAlpha = 1 - out;
+    const ring = eo(p(t, 0.05, 0.85));
+    ctx.strokeStyle = C.or; ctx.lineWidth = 16; ctx.lineCap = 'round'; ctx.beginPath(); ctx.arc(0, 0, r + 22, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * ring); ctx.stroke();
+    const k = p(t, 0.85, 1.2); withT(0, 0, back(k) * (1 + 0.02 * Math.sin(p(t, 1.2, 1.45) * Math.PI)), 0, () => logoDisc(r), eo(k));
+    ctx.restore();
+  }
+
+  // ===== stick (persistent from T1) =====
+  const drawStickNow = () => {
+    if (t < T1) return;
+    let [x, y] = stickPos(t); const o = { s: 1.1 };
+    const enter = p(t, T1, T1 + 0.55); x = lerp(-150, x, eo(enter)); y -= Math.sin(enter * Math.PI) * 120 * (1 - enter);
+    if (enter >= 1) y -= Math.abs(Math.sin((t - T1) * 2.4)) * 6; // light idle bounce
+    o.blink = ((t * 10) | 0) % 37 === 0;
+    if (t < T2) { o.face = 'think'; o.look = Math.sin(t * 3) * 6; o.armR = 2.6; o.elbowR = 1.2; }
+    else if (t < T3) { const sc = Math.sin(t * 14) * 0.18; o.face = 'think'; o.armR = 2.75 + sc; o.elbowR = 1.75; o.tilt = 0.12; }
+    else if (t < T4) { o.armL = -1.85; o.elbowL = -0.1; o.face = 'happy'; o.look = -6; }
+    else if (t < T5) { o.armL = -2.5; o.elbowL = -0.2; o.armR = 0.4; o.face = 'happy'; }
+    else if (t < T6) { o.armL = -1.7; o.elbowL = -0.4; o.face = 'happy'; o.look = -6; }
+    else if (t < T7) {
+      const j = (t - T6) % 0.75 / 0.75; y -= Math.sin(j * Math.PI) * 55; o.armL = -2.7; o.armR = 2.7; o.elbowL = 0.3; o.elbowR = -0.3;
+      o.face = 'wow'; o.cheeks = true; o.legL = -0.5 * Math.sin(j * Math.PI); o.legR = 0.5 * Math.sin(j * Math.PI);
+    } else { const w = Math.sin((t - T7) * 5) * 0.15; o.armL = -2.6 + w; o.armR = 2.6 + w; o.elbowL = 0.2; o.elbowR = -0.2; o.face = 'happy'; o.cheeks = true; }
+    // ground shadow
+    const [gx, gy] = stickPos(t); ctx.fillStyle = 'rgba(24,32,42,0.12)'; ctx.beginPath(); ctx.ellipse(lerp(-150, gx, eo(enter)), gy + 178, 110, 16, 0, 0, 7); ctx.fill();
+    stick(x, y, o);
+  };
+
+  // ===== 1 · stuck idea (T1 → T3) =====
+  if (t >= T1 && t < T3 + 0.4) {
+    const [sx] = stickPos(t); const k = back(p(t, T1 + 0.3, T1 + 0.75));
+    const small = eio(p(t, T2, T2 + 0.5)); const burst = p(t, T3, T3 + 0.25);
+    const bx = lerp(540, sx - 40, small), by = lerp(640, 800, small), bs = lerp(1, 0.55, small) * (1 + 0.35 * burst);
+    // wall hits
+    const ph = (t - TB) / P_STUCK; const kk = Math.floor(ph), f = ph - kk; const dir = kk % 2 ? 1 : -1; const A = 105;
+    let off = 0, squash = 0;
+    if (t >= TB && t < T2) { off = -dir * A + dir * 2 * A * ei(f); }
+    const since = t >= TB ? (ph % 1) * P_STUCK : 9; if (since < 0.14 && t < T2 + 0.1) squash = (1 - since / 0.14);
+    withT(bx, by, k * bs, 0, () => {
+      thought(380, 300, squash * 10);
+      const glow = t < T2 ? 0.5 : 0.15;
+      withT(off * (1 - small) + Math.sin(t * 40) * 3 * squash, 0, 1, 0, () => { ctx.save(); ctx.scale(1 - 0.12 * squash, 1 + 0.08 * squash); bulb(glow); ctx.restore(); });
+    }, 1 - burst);
+  }
+
+  // ===== 2 · unclear road (T2 → T3) =====
+  if (t >= T2 && t < T3 + 0.4) {
+    const ox = slideOut(t, T3 + 0.35); ctx.save(); ctx.translate(ox, 0);
+    const draw = eo(p(t, B.S2.start + 0.1, B.S2.start + 1.6));
+    const pts = [[700, 1080], [520, 1010], [600, 860], [380, 800], [460, 650], [250, 560]];
+    ctx.setLineDash([26, 22]); ctx.strokeStyle = C.ink; ctx.lineWidth = 10; ctx.lineCap = 'round';
+    const path = new Path2D(); path.moveTo(...pts[0]); for (let i = 1; i < pts.length; i++) { const [x0, y0] = pts[i - 1], [x1, y1] = pts[i]; path.quadraticCurveTo(x0, y1, (x0 + x1) / 2 + (x1 - x0) * 0.5, y1); }
+    ctx.save(); ctx.beginPath(); ctx.rect(0, lerp(1150, 450, draw), W, 800); ctx.clip(); ctx.stroke(path); ctx.restore(); ctx.setLineDash([]);
+    // far video icon
+    const vk = back(p(t, B.S2.start + 1.2, B.S2.start + 1.6)); withT(200, 520, 0.45 * vk, -0.08, () => { screen(t, 300, 220, 0); withT(0, 10, 1, 0, () => playBtn(40, C.bg)); }, eo(p(t, B.S2.start + 1.2, B.S2.start + 1.6)) * 0.85);
+    [[560, 960], [400, 760], [330, 600]].forEach(([x, y], i) => { const t0 = B.S2.start + 0.35 + i * 0.4 + 0.6; const kq = p(t, t0, t0 + 0.3); withT(x, y + Math.sin(t * 4 + i) * 6, 1, Math.sin(t * 3 + i) * 0.12, () => qmark(kq)); });
+    ctx.restore();
+  }
+
+  // ===== 3 · station 1: idea card (T3 → T4) =====
+  if (t >= T3 && t < T4 + 0.4) {
+    const ox = slideOut(t, T4 + 0.35); ctx.save(); ctx.translate(ox, 0);
+    const k = p(t, T3 + 0.05, T3 + 0.45); const flip = p(t, T4 - 0.05, T4 + 0.2);
+    const cs = back(k); const fx = Math.cos(flip * Math.PI / 2);
+    withT(400, 720, cs, -0.03, () => { ctx.scale(fx, 1); card(560, 380, C.or, 'المحطة ١ · فكرة');
+      withT(-150, 40, 0.8, 0, () => bulb(0.4));
+      const wk = p(t, K.s3a, K.s3a + 0.35); text('جملة', 80, 10, 58, C.ink); if (wk > 0) { ctx.fillStyle = C.ye; ctx.globalAlpha = 0.7; rr(-60, 66, 270 * eo(wk), 22, 11); ctx.fill(); ctx.globalAlpha = 1; }
+      text('واحدة', 80, 80, 58, C.ink);
+    });
+    const a1 = p(t, K.s3aud, K.s3aud + 0.35), a2 = p(t, K.s3feel, K.s3feel + 0.35);
+    withT(250, 1060, back(a1), 0, () => { people(); text('جمهورك', 0, 110, 40, C.ink); }, eo(a1));
+    withT(520, 1060, back(a2) * (1 + 0.05 * Math.sin(t * 8)), 0, () => { heart(); text('شعوره', 0, 110, 40, C.ink); }, eo(a2));
+    ctx.restore();
+  }
+
+  // ===== 4 · station 2: script → scenes (T4 → T5) =====
+  if (t >= T4 && t < T5 + 0.6) {
+    const flip = p(t, T4 + 0.05, T4 + 0.3); const fx = Math.sin(flip * Math.PI / 2);
+    const split = eio(p(t, K.s4b - 0.05, K.s4b + 0.45)); const toScreen = eio(p(t, T5 + 0.05, T5 + 0.55));
+    const paperX = lerp(400, 540, eo(p(t, T4, T4 + 0.5)));
+    if (split < 1) withT(paperX, 680, 1 - 0.6 * split, 0, () => { ctx.scale(fx, 1); card(520, 420, C.tq, 'المحطة ٢ · تخطيط');
+      text('سكربت', 0, -30, 56, C.ink);
+      [0, 1, 2].forEach((i) => { const lk = eo(p(t, T4 + 0.4 + i * 0.12, T4 + 0.7 + i * 0.12)); ctx.fillStyle = i === 1 ? C.or : 'rgba(24,32,42,0.25)'; rr(180 - 360 * lk, 40 + i * 44, 360 * lk, 16, 8); ctx.fill(); });
+    }, 1 - split);
+    const slots = [[810, 760], [540, 760], [270, 760]];
+    if (split > 0) slots.forEach(([x, y], i) => {
+      const kk = back(p(t, K.s4b + i * 0.06, K.s4b + 0.4 + i * 0.06));
+      const tx = lerp(x, 540 + (i - 1) * 150, toScreen), ty = lerp(y, 700, toScreen), ts = lerp(1, 0.45, toScreen);
+      withT(lerp(paperX, tx, split), ty, kk * ts, (i - 1) * 0.04 * (1 - toScreen), () => miniPanel(i), 1 - eo(p(t, T5 + 0.4, T5 + 0.6)));
+    });
+  }
+
+  // ===== 5–6 · station 3: the video (T5 → T7) =====
+  if (t >= T5 && t < T7 + 0.4) {
+    const ox = slideOut(t, T7 + 0.35); ctx.save(); ctx.translate(ox, 0);
+    const k = p(t, T5 + 0.1, T5 + 0.55); const playing = eo(p(t, T6, T6 + 0.4));
+    withT(540, 700, back(k), 0, () => {
+      screen(t, 720, 460, playing);
+      text('المحطة ٣ · فيديو', 0, -235 + 32, 40, C.white);
+      if (playing < 1) withT(0, 15, 1 - playing * 0.6, 0, () => playBtn(70, C.bg), 1 - playing);
+      if (playing > 0) withT(0, 15, lerp(0.4, 1, back(p(t, T6, T6 + 0.35))), 0, () => playBtn(70, C.ye), 1 - eo(p(t, T6 + 0.9, T6 + 1.3)));
+    }, eo(k));
+    const badge = (x, y, label, col, tt, i) => { const kk = p(t, tt, tt + 0.35); withT(x, y + Math.sin(t * 2.5 + i) * 8, back(kk), Math.sin(t * 2 + i) * 0.04, () => pill(label, col, 48), eo(kk)); };
+    badge(845, 470, 'صوت', C.tq, K.s5v, 0); badge(200, 730, 'حركة', C.or, K.s5m, 1); badge(330, 1000, 'مونتاج', C.ye, K.s5e, 2);
+    ctx.restore();
+  }
+
+  // ===== 7 · CTA (T7 → END) =====
+  if (t >= T7) {
+    const k = p(t, T7 + 0.3, T7 + 0.75); const grow = eo(p(t, T7 + 0.3, T7 + 0.6));
+    const pulse = t > T7 + 1 ? 1 + 0.03 * Math.sin((t - T7 - 1) * Math.PI * 2) : 1;
+    withT(540, 830, back(k) * pulse, 0, () => {
+      ctx.font = '900 84px Cairo'; const tw = ctx.measureText('ابدأ بفكرتك اليوم').width; const w = lerp(150, tw + 140, grow), h = 170;
+      ctx.fillStyle = 'rgba(24,32,42,0.18)'; rr(-w / 2 + 10, -h / 2 + 14, w, h, h / 2); ctx.fill();
+      ctx.fillStyle = C.ye; ctx.strokeStyle = C.ink; ctx.lineWidth = 11; rr(-w / 2, -h / 2, w, h, h / 2); ctx.fill(); ctx.stroke();
+      ctx.save(); rr(-w / 2, -h / 2, w, h, h / 2); ctx.clip(); text('ابدأ بفكرتك اليوم', 0, 6, 84, C.ink, 900); ctx.restore();
+    }, eo(k));
+    const sub = p(t, T7 + 0.9, T7 + 1.3); withT(540, 955, 1, 0, () => text('فكرة ← تخطيط ← فيديو', 0, 0, 44, C.ink, 700), eo(sub) * 0.75);
+    // little arrow from stick to the button
+  }
+
+  drawStickNow();
+
+  // confetti
+  if (t >= T6 && t < T7 + 1.5) confetti.forEach((c) => { const u = t - T6 - c.d; if (u < 0) return; const y = -40 + c.vy * u + 300 * u * u; if (y > H) return; withT(c.x + c.vx * u, y, 1, c.rot + c.vr * u, () => { ctx.fillStyle = c.c; ctx.fillRect(-c.w / 2, -c.w * 0.3, c.w, c.w * 0.6); }); });
+
+  rail(t);
+
+  // ===== captions (y ≈ 1480, inside safe zone) =====
+  const CY = 1490, CS = 92;
+  if (t < T2) caption(t, [{ w: 'فكرة…', t: K.s1a, c: C.or }, { w: 'عالقة؟', t: K.s1b }], 540, CY, CS, T2);
+  else if (t < T3) caption(t, [{ w: 'الطريق', t: K.s2a }, { w: 'غير', t: K.s2a + 0.05 }, { w: 'واضح', t: K.s2a + 0.1, c: C.or }], 540, CY, CS, T3);
+  else if (t < T4) caption(t, [{ w: 'جملة', t: K.s3a }, { w: 'واحدة', t: K.s3a + 0.1, c: C.or }], 540, CY, CS, T4);
+  else if (t < T5) caption(t, [{ w: 'سكربت', t: K.s4a }, { w: '←', t: K.s4b, c: C.tq }, { w: 'مشاهد', t: K.s4b + 0.05, c: C.or }], 540, CY, CS, T5);
+  else if (t < T6) caption(t, [{ w: 'أدوات', t: K.s5a }, { w: 'الذكاء', t: K.s5a + 0.05 }, { w: 'الاصطناعي', t: K.s5a + 0.1, c: C.tq }], 400, CY, 64, T6);
+  else if (t < T7) caption(t, [{ w: 'فيديو', t: K.s6a }, { w: 'حقيقي!', t: K.s6a + 0.08, c: C.or }], 450, CY, 104, T7);
+
+  // ===== watermark: 9% width (97 px), 78% opacity, right 42 px, top 80 px; hidden during the intro =====
+  const wm = eo(p(t, T1, T1 + 0.4)) * 0.78;
+  if (wm > 0) { const d = 97; withT(W - 42 - d / 2, 80 + d / 2, 1, 0, () => logoDisc(d / 2), wm); }
+};
+
+(async () => {
+  await Promise.all([document.fonts.load('900 80px Cairo', 'فكرة'), document.fonts.load('700 80px Cairo', 'فكرة'), new Promise((r) => (logo.complete ? r() : (logo.onload = r)))]);
+  await document.fonts.ready;
+  window.drawFrame(0);
+  window.READY = true;
+})();
+</script>
+</body>
+</html>
