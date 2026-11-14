@@ -1,0 +1,7 @@
+[
+  { "name": "logo_swoosh", "duration": 1.0, "prompt": "Fast airy swoosh tracing a circle, clean and light, modern motion graphics logo draw, no reverb tail" },
+  { "name": "pop", "duration": 0.5, "prompt": "Soft bubbly cartoon pop, short and gentle, friendly UI pop" },
+  { "name": "pop_light", "duration": 0.5, "prompt": "Very light tiny pop, small bubble, subtle and high pitched, quiet" },
+  { "name": "whoosh", "duration": 0.8, "prompt": "Soft quick whoosh transition, airy swish, smooth, not harsh, motion graphics" },
+  { "name": "soft_impact", "duration": 0.7, "prompt": "Soft muffled cartoon impact thud, warm low body, gentle bounce landing, no crash" }
+]
