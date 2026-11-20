@@ -165,8 +165,8 @@ function render(t) {
   const [t0, id] = shotAt(t), u = t - t0, tq = q(t);
   if (id === 'enter') {
     cam(540, 1000, 1.08, 0, t);
-    const walkU = ss(seg(t, 0, 1.4)), fall = eo(clamp(seg(t, 1.45, 2.0)));
-    const gx = lerp(1110, 1030, walkU);
+    const walkU = ss(seg(t, 0, 1.3)), fall = eo(clamp(seg(t, 1.4, 2.0)));
+    const gx = lerp(1080, 1000, walkU);
     const step = t < 1.4 ? Math.sin(tq * 14) : 0;
     room(t, {
       noddP: N(t, { closed: true, lean: .22, headTilt: .3, mouth: { o: .15 + .1 * Math.sin(t * 3), sm: 0 } }),

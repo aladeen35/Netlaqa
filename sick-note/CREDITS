@@ -1,0 +1,13 @@
+SICK NOTE — credits and licences
+
+Fonts (SIL Open Font License 1.1, via Google Fonts / Fontsource):
+  Baloo 2 and Baloo Bhaijaan 2 — Ek Type (fonts/OFL-baloo2.txt)
+  VT323 — Peter Hull
+  Lilita One — Juan Montoreano
+
+Voices: Kokoro-82M TTS (Apache-2.0), voices am_onyx (Dr. Nodd) and am_puck (Gus), run locally via kokoro-onnx.
+Speech check: faster-whisper (MIT), model base.en.
+
+Music and sound effects: synthesized from code for this film (no samples).
+Drawing engine: adapted from the Lemo-Opuscar scifi-toon demo code (MIT).
+Characters, story and designs: original to this film.

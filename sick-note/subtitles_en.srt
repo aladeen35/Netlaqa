@@ -1,0 +1,15 @@
+1
+00:00:02,700 --> 00:00:09,000
+Doctor, I feel completely exhausted. My whole body aches, and I don't even have the energy for work anymore!
+
+2
+00:00:09,000 --> 00:00:11,237
+Hmm. Let's scan you.
+
+3
+00:00:13,500 --> 00:00:15,300
+87%?!
+
+4
+00:00:24,100 --> 00:00:28,051
+Honestly, my friend… you won't be able to keep up with me!
