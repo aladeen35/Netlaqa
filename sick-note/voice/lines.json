@@ -1,0 +1,10 @@
+[
+ {"id":"p1","who":"GUS","text":"Doctor, I feel completely exhausted. My whole body aches, and I don't even have the energy for work anymore!","voice":"am_puck","speed":1.08,
+  "ar":"دكتور، أنا مُرهق تماماً… جسمي كله يوجعني، وما عاد فيني طاقة حتى للشغل!"},
+ {"id":"d0","who":"NODD","text":"Hmm. Let's scan you.","asr":"Hum, let's scan you.","voice":"am_onyx","speed":0.82,
+  "ar":"همم… خلّنا نفحصك."},
+ {"id":"p2","who":"GUS","text":"Eighty-seven percent?!","sub":"87%?!","asr":"87%","voice":"am_puck","speed":1.05,
+  "ar":"87%؟!"},
+ {"id":"d1","who":"NODD","text":"Honestly, my friend... you won't be able to keep up with me!","sub":"Honestly, my friend… you won't be able to keep up with me!","voice":"am_onyx","speed":0.84,
+  "ar":"بصراحة يا صديقي… ما راح تقدر تلحقني!"}
+]
